@@ -6,6 +6,12 @@ caps: {retries: 3, nudges: 4, voice_calls: 1}
 cooldowns_hours: {nudge: 20, voice_after_last_contact: 48}
 voice_eligibility: {min_amount_inr: 15000, min_days_overdue: 7}
 salary_days: [1, 7, 15]
+incentives:
+  enabled: true
+  batch_budget_inr: 2000
+  per_case_pct_max: 5
+  per_case_inr_max: 100
+  allowed_root_causes: [PRICE_HESITATION]
 
 # Each playbook is an ordered plan. Timing spec `at`:
 #   "+Nh" / "+Nm" / "+Nd"  -> offset from planning time

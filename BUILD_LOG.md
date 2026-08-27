@@ -37,3 +37,10 @@ Daily: Shipped / Broke / Fixed / Decided (+why) / Next.
 - **Fixed:** n/a.
 - **Decided:** (1) Verified Razorpay card error_reason strings against live docs (razorpay.com/docs/errors/payments/cards/) — updated simulator taxonomy from starter map to documented values (insufficient_funds, card_expired, gateway_technical_error…); mandate reasons keep the starter map, noted. Batch hash for seed 42 changed accordingly (now 80e6028d…). (2) Appendix B's string DSL ("retry@liquidity_window") became structured YAML entries — same expressiveness, no parser to maintain. (3) Unknown (category × cause) pairs fall back to UNKNOWN playbook → escalate.
 - **Next:** Phase 4 — guardrails gate, TESTS FIRST. Mandatory human diff review after it per §13.1.
+
+## Aug 27, 2026 — Phase 4: Guardrails gate (tests first)
+- **Shipped:** tests/test_guardrails.py written BEFORE the code (28 tests, red first), then agent/guardrails.py: ordered FR-5.1 checks (terminal, per-kind caps, cooldowns, IST contact window w/ silent-action exemption, opt-out registry, voice value threshold, incentive bounding incl. batch budget + per-case cap + allowed-cause + once-only, idempotency), FR-5.2 opt-out (instant, permanent, first-trigger-wins, cancels queued actions, stops all cases, fully audited), FR-5.3 blocked-with-reason + auto-replan to next window open. Schema: customers (opt-out registry) + executed_actions (unique idempotency_key). Coverage 98% (gate ≥95%).
+- **Broke:** double-fire test failed on first implementation — replay was re-gated and blocked by nudge cooldown before the idempotency lookup.
+- **Fixed:** replay of an already-executed planned action returns the existing execution row BEFORE re-gating (lookup by planned_id) — true at-most-once crash-retry semantics.
+- **Decided:** at-most-once over at-least-once for crashed executions — for money-adjacent actions a lost retry beats a duplicate contact. Stop-intent rules are word-bounded regexes ("stopped by the shop" doesn't trip; "\bstop\b(?!ped)" does).
+- **Next:** Phase 5 — channels + real payment-link money loop. MANDATORY human diff review of Phase 4 before starting (PRD §13.1).

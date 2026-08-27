@@ -43,6 +43,7 @@ class Policy(BaseModel):
     cooldowns_hours: dict
     voice_eligibility: dict
     salary_days: list[int]
+    incentives: dict
     playbooks: dict[str, list[PlaybookAction]]
     version_hash: str
 

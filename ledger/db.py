@@ -73,6 +73,38 @@ class PlannedActionRow(Base):
     rationale: Mapped[str] = mapped_column(Text)
     policy_version_hash: Mapped[str] = mapped_column(String(64))
     status: Mapped[str] = mapped_column(String, default="PENDING")
+    incentive_inr: Mapped[int] = mapped_column(default=0)  # bounded by FR-4.3 rules
+
+
+class CustomerRow(Base):
+    """Customer registry — synthetic PII only. opted_out is the permanent
+    opt-out registry the gate consults (FR-5.2)."""
+
+    __tablename__ = "customers"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    customer_id: Mapped[str] = mapped_column(String, unique=True)
+    opted_out: Mapped[bool] = mapped_column(default=False, index=True)
+    opt_out_ts: Mapped[str | None]
+    opt_out_source: Mapped[str | None]
+
+
+class ExecutedActionRow(Base):
+    """One executed intervention. idempotency_key is UNIQUE — the same logical
+    attempt can never execute twice (FR-5.1 check 8, NFR-2)."""
+
+    __tablename__ = "executed_actions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    planned_id: Mapped[int]
+    case_id: Mapped[int] = mapped_column(index=True)
+    action_type: Mapped[str]
+    channel: Mapped[str]
+    idempotency_key: Mapped[str] = mapped_column(String, unique=True)
+    executed_ts: Mapped[str]
+    result: Mapped[str]
+    external_ref: Mapped[str | None]  # payment_link_id etc.
+    incentive_inr: Mapped[int] = mapped_column(default=0)
 
 
 class AuditRow(Base):
