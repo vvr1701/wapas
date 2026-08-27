@@ -9,7 +9,7 @@ listed here.
 
 | Element | How |
 |---|---|
-| Customers, plan, subscriptions, payment links, invoices | Created by `simulator/seed_razorpay.py` via the Razorpay Python SDK; ids in `data/seed_registry.json` |
+| Customers, plan, subscriptions, orders, invoices | Created by `simulator/seed_razorpay.py` via the Razorpay Python SDK; ids in `data/seed_registry.json`. L2 entities are Orders, not payment links — test mode caps payment links at 30 total, so the link budget is reserved for per-nudge links (FR-6.2) |
 | Payment links sent in nudges | Created per-case via the Payment Links API |
 | Payments that close cases | Completed in the browser with Razorpay test cards/UPI and observed via API polling |
 

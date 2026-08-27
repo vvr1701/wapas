@@ -89,7 +89,7 @@ class _FakeResource:
 class _FakeClient:
     def __init__(self):
         self.counter: dict = {}
-        for kind in ("customer", "plan", "subscription", "payment_link", "invoice"):
+        for kind in ("customer", "plan", "subscription", "order", "invoice"):
             setattr(self, kind, _FakeResource(self.counter, kind))
 
 

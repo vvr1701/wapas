@@ -16,3 +16,10 @@ Daily: Shipped / Broke / Fixed / Decided (+why) / Next.
 - **Decided:** generator falls back to sim_-prefixed entity ids when the world isn't seeded yet — keeps determinism tests offline; disclosed in SIMULATION.md. Seeder tested via fake client (zero creates on re-run) since no test keys are present yet.
 - **BLOCKER (partial):** no Razorpay test keys in .env → live `make seed` unverified (idempotency logic proven against fake client only). Options: (a) add keys and run `make seed` twice before Phase 2 — preferred; (b) proceed to Phase 2 (needs no live objects) and verify seed before Phase 5's real payment-link loop.
 - **Next:** Phase 2 — case spine: ingestion, state machine, hash-chained audit log.
+
+## Aug 27, 2026 — Phase 1 addendum: live seed against real test-mode APIs
+- **Shipped:** live world seeded — 250 customers, 80 orders, 50 invoices as real test-mode objects; `make seed` run twice → identical registry sha256 (6c8e855e…) — idempotency gate closed live.
+- **Broke:** (1) Plans/Subscriptions API → Unauthorized (product not active on account, still, after dashboard enablement — likely propagation or partial activation); (2) rate limit "Too many requests" mid-seed; (3) hard test-mode cap: 30 payment links total.
+- **Fixed:** (2) exponential backoff in Seeder._ensure (all creates route through it); (3) L2 entities seeded as Orders — truer to FR-2.2 anyway — and all 30 created links cancelled to reserve the budget for per-nudge links (FR-6.2); seeder sections isolated so a gated product can't block the rest.
+- **Decided:** subscriptions stay as disclosed sim_ ids until the API unlocks; re-running `make seed` fills the gap with zero duplicates by design.
+- **Next:** Phase 2 — case spine. Re-check /v1/plans before Phase 5.
