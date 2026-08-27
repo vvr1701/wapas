@@ -51,3 +51,10 @@ Daily: Shipped / Broke / Fixed / Decided (+why) / Next.
 - **Fixed:** per-nudge links are invoice-backed (Invoices API, uncapped, same payable short_url + hosted page + notes propagation). Disclosed in SIMULATION.md.
 - **Decided:** LLM personalization of nudges deferred (P1) — deterministic templates ship the P0; money fields are template variables per §6.1 regardless. E2E test skips (never fakes green) without keys, so CI stays honest; gate run is local.
 - **Next:** Phase 6 — promise ledger, attribution, escalation packets. L1+L3 happy-path e2e checkpoint.
+
+## Aug 27, 2026 — Phase 6: Promises, attribution, escalation
+- **Shipped:** promise ledger (KEPT/BROKEN/PARTIAL, +1d grace, kept → RECOVERED w/ voice_promise attribution, partial reduces amount_due + replans, broken replans a gentle follow-up), Appendix C attribution as pure functions (post-intervention-only credit, natural-rate adjustment, lift abs+rel, cost/₹, stops_honored), escalation reasons enum + self-sufficient context packets (summary/diagnosis/actions/timeline-from-audit/transcripts/next step) + human ack logging. Checkpoint green: L1 (insufficient_funds → liquidity retry → payment → RECOVERED) and L3 (invoice → reminder → voice promise → verified payment → KEPT → RECOVERED) e2e, both audit-chain-verified end to end.
+- **Broke:** context packet had no transcripts — promise_recorded audit payload omitted transcript_ref.
+- **Fixed:** transcript_ref added to the audit payload (packet reads transcripts from the audit log, the one source of truth).
+- **Decided:** observe_payment only closes a case when payment ≥ amount_due — partials are recorded but never fake-RECOVER; the promise verifier owns partial semantics.
+- **Next:** Phase 7 — Hinglish voice agent (conversation policy, text-mode harness, adversarial six, promise-extraction golden set). Needs ANTHROPIC_API_KEY for live LLM; text-harness tests must run without it in CI.

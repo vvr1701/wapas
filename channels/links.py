@@ -68,7 +68,13 @@ def observe_payment(session: Session, payment: dict, now: datetime) -> PaymentOb
         case_id=case.id if case else None,
         payload={"rzp_payment_id": payment["id"], "amount_inr": row.amount_inr},
     )
-    if case is not None and CaseState(case.state) not in TERMINAL:
+    # Full payment closes the case; a partial one is recorded and left to the
+    # promise verifier / policy replan (FR-8.1) — never a false RECOVERED.
+    if (
+        case is not None
+        and CaseState(case.state) not in TERMINAL
+        and row.amount_inr >= case.amount_due_inr
+    ):
         transition(
             session,
             case,

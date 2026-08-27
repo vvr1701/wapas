@@ -107,6 +107,36 @@ class ExecutedActionRow(Base):
     incentive_inr: Mapped[int] = mapped_column(default=0)
 
 
+class PromiseRow(Base):
+    """Promise-to-pay captured from a voice call (FR-8.1)."""
+
+    __tablename__ = "promises"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    case_id: Mapped[int] = mapped_column(index=True)
+    amount_inr: Mapped[int]
+    due_date: Mapped[str]  # ISO-8601 UTC
+    conditions: Mapped[str | None]
+    confidence: Mapped[float]
+    status: Mapped[str] = mapped_column(String, default="PENDING")  # KEPT|BROKEN|PARTIAL
+    transcript_ref: Mapped[str | None]
+    created_ts: Mapped[str]
+
+
+class EscalationRow(Base):
+    """Human handoff with a self-sufficient context packet (FR-9.1)."""
+
+    __tablename__ = "escalations"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    case_id: Mapped[int] = mapped_column(index=True)
+    reason: Mapped[str]
+    context_packet_json: Mapped[str] = mapped_column(Text)
+    acked_by: Mapped[str | None]
+    acked_ts: Mapped[str | None]
+    created_ts: Mapped[str]
+
+
 class PaymentObservedRow(Base):
     """Incoming test-mode payments matched to cases — the recovered-₹ source of
     truth (FR-6.2, FR-11.2)."""
