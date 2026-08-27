@@ -107,6 +107,22 @@ class ExecutedActionRow(Base):
     incentive_inr: Mapped[int] = mapped_column(default=0)
 
 
+class PaymentObservedRow(Base):
+    """Incoming test-mode payments matched to cases — the recovered-₹ source of
+    truth (FR-6.2, FR-11.2)."""
+
+    __tablename__ = "payments_observed"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    rzp_payment_id: Mapped[str] = mapped_column(String, unique=True)
+    amount_inr: Mapped[int]
+    method: Mapped[str | None]
+    matched_case_id: Mapped[int | None] = mapped_column(index=True)
+    matched_promise_id: Mapped[int | None]
+    attribution_arm: Mapped[str | None]  # set by the eval harness (Phase 8)
+    observed_ts: Mapped[str]
+
+
 class AuditRow(Base):
     """Append-only, tamper-evident audit record (FR-10.1). id is chain order."""
 

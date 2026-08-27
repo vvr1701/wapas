@@ -44,3 +44,10 @@ Daily: Shipped / Broke / Fixed / Decided (+why) / Next.
 - **Fixed:** replay of an already-executed planned action returns the existing execution row BEFORE re-gating (lookup by planned_id) — true at-most-once crash-retry semantics.
 - **Decided:** at-most-once over at-least-once for crashed executions — for money-adjacent actions a lost retry beats a duplicate contact. Stop-intent rules are word-bounded regexes ("stopped by the shop" doesn't trip; "\bstop\b(?!ped)" does).
 - **Next:** Phase 5 — channels + real payment-link money loop. MANDATORY human diff review of Phase 4 before starting (PRD §13.1).
+
+## Aug 27, 2026 — Phase 5: Channels + real money loop
+- **Shipped:** Hinglish nudge templates (6 goldens committed: link/method-update/invoice reminders across email+WhatsApp), tone lint with 19 banned phrases enforced at render time (a nudge that fails its own lint raises), simulated-delivery outbox with honest labeling, opt-out footer on every message, payments_observed table, invoice-backed payment links with notes-based case matching, observe_payment → RECOVERED with recovered-₹ accounting. Live e2e green: real link created → payment observed → case RECOVERED → ₹1,200 counted → re-observe idempotent.
+- **Broke:** payment_link.create failed — test mode's 30-link cap is LIFETIME, not active-count; cancelling doesn't refund it (verified via probe). Our seeding collision had burned all 30.
+- **Fixed:** per-nudge links are invoice-backed (Invoices API, uncapped, same payable short_url + hosted page + notes propagation). Disclosed in SIMULATION.md.
+- **Decided:** LLM personalization of nudges deferred (P1) — deterministic templates ship the P0; money fields are template variables per §6.1 regardless. E2E test skips (never fakes green) without keys, so CI stays honest; gate run is local.
+- **Next:** Phase 6 — promise ledger, attribution, escalation packets. L1+L3 happy-path e2e checkpoint.

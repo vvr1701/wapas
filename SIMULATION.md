@@ -10,7 +10,7 @@ listed here.
 | Element | How |
 |---|---|
 | Customers, plan, subscriptions, orders, invoices | Created by `simulator/seed_razorpay.py` via the Razorpay Python SDK; ids in `data/seed_registry.json`. L2 entities are Orders, not payment links — test mode caps payment links at 30 total, so the link budget is reserved for per-nudge links (FR-6.2) |
-| Payment links sent in nudges | Created per-case via the Payment Links API |
+| Payable links sent in nudges | Created per-case via the Invoices API (each carries a hosted, payable `short_url`). Not the payment_link entity: test mode enforces a lifetime cap of 30 payment links (verified live — cancelling does not refund it), while invoices are not capped that way. Customer experience is identical: hosted Razorpay page, test cards/UPI work, notes propagate to the payment |
 | Payments that close cases | Completed in the browser with Razorpay test cards/UPI and observed via API polling |
 
 ## Simulated (and why)
