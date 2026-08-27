@@ -73,3 +73,10 @@ Daily: Shipped / Broke / Fixed / Decided (+why) / Next.
 - **Fixed:** opt_out takes caller-clock ts; due+Nd re-anchors at plan time when due is past (policy-engine semantic, tested both directions). Also: escalate no longer consumes the nudge cap (kind "internal").
 - **Decided:** natural payment = ONE behavior-model consultation per case on the customer's salary day, identical key in all arms — harness-side convention, behavior_model.py untouched. Policy tuning (YAML only): adding liquidity nudges HURT (annoyance model punishes over-contacting — C-7 working as designed); winning move was voice SECOND in the L3 ladder (before anyone hits annoyance threshold). Final seed-42: at-risk ₹71.2L; raw A/B/C ₹13.0L/₹22.4L/₹34.5L; adjusted C ₹22.95L vs B ₹9.4L (2.45× baseline on adjusted); lift +54% rel raw; 13/13 promises kept (₹17.6L via voice); stops honored 100%; 141 honest exceptions.
 - **Next:** Phase 9 — dashboard. Then close Phase-7 pending gates when ANTHROPIC/SARVAM keys land.
+
+## Aug 27, 2026 — Phase 7 pending gates CLOSED (keys landed)
+- **Shipped (live runs):** promise-extraction golden set 20/20 = 100% exact match (Opus 5; every Hinglish date expression resolved — agle mangalvar, parso, salary ke baad, mahine ka pehla hafta). Sarvam round-trip verified: Bulbul v2 TTS → 162KB audio → Saarika v2.5 STT → transcript with the ₹18,000 amount intact. Live 2-turn Sonnet 5 Hinglish conversation through the policy rails: disclosure first, bilingual amounts, negotiated an in-bounds promise date. Endpoint shapes in stt_tts.py confirmed against the live API.
+- **Broke:** nothing.
+- **Fixed:** n/a.
+- **Decided:** manual console demo (browser mic) reserved for video recording day; the automated TTS→STT round-trip is the repeatable evidence.
+- **Next:** Phase 9 — dashboard.
