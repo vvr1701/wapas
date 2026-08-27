@@ -19,4 +19,4 @@ verify-audit:
 	uv run python -m ledger.audit --verify
 
 dashboard:
-	@echo "TODO Phase 9: uv run streamlit run dashboard/app.py" && exit 1
+	uv run streamlit run dashboard/app.py

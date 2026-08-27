@@ -80,3 +80,10 @@ Daily: Shipped / Broke / Fixed / Decided (+why) / Next.
 - **Fixed:** n/a.
 - **Decided:** manual console demo (browser mic) reserved for video recording day; the automated TTS→STT round-trip is the repeatable evidence.
 - **Next:** Phase 9 — dashboard.
+
+## Aug 27, 2026 — Phase 9: Dashboard
+- **Shipped:** 5 Streamlit screens (command center, case explorer w/ audit-only timeline + verbatim rationales, text-mode call console vs live Claude + pointer to the mic console, guardrails & compliance w/ blocked-by-reason + IST contact heatmap + escalation packets, eval results w/ 3-arm table + promises + cost + EXCEPTIONS.md + manifest) over a testable dashboard/data.py layer. 6 tests: 5 KPIs == metrics.json keys, timeline 1:1 with audit rows, cold start <10s (measured 0.3s), zero contacts outside 10–19 IST, guardrails consistency, all pages parse. Headless boot verified (health 200).
+- **Broke:** nothing.
+- **Fixed:** heatmap initially read audit ts (wallclock) — switched to executed_ts (world time the gate enforced against).
+- **Decided:** dashboard shows numbers ONLY via data.py functions reading metrics.json/eval DB — the spot-check test is structural, not cosmetic.
+- **Next:** Phase 10 — hardening, docs (README per §11.2, ARCHITECTURE.md), kill-and-resume + degradation tests, submission pack.
