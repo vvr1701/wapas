@@ -1,0 +1,11 @@
+{
+ "audit_chain": "audit chain intact: 3435 records",
+ "batch_hash": "80e6028dc8f5ef2601f5ea7c4d3a0a61c67265f314e5e99067e00163673d58e1",
+ "code_git_sha": "02a4b03cf5622267f9e77eaf8da94b6f8fdfc61c",
+ "days": 21,
+ "policy_version_hash": "8fb77051b8ef5b6df398032697a47ff93726e633e35ac93f64dc481a19c60291",
+ "seed": 42,
+ "sim_config_hash": "0078d037122c773a490cea2afd439f4ef280ce2b3f88c52e10e18c815c789947",
+ "world_hash": "5e636a0796fc1594049418879fd3b89cb57302afae7d3b8d8d491b1f44c15295",
+ "world_hash_equal_across_arms": true
+}

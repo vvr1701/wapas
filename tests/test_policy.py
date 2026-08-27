@@ -92,11 +92,21 @@ def test_liquidity_window_lands_on_salary_day_at_window_open(session):
     assert first.scheduled_for == datetime(2026, 9, 1, 4, 30, tzinfo=UTC)
 
 
-def test_due_anchored_timing(session):
+def test_due_anchored_timing_reanchors_past_due(session):
+    """due+Nd on an already-overdue case re-anchors at plan time — the ladder
+    plays out in order instead of all steps (incl. escalate) firing at once."""
     case = _case(session, category="L3", cause="INVOICE_FORGOTTEN", amount=18000, due_days_ago=10)
     actions = plan(case, POLICY, NOW)
-    due = NOW - timedelta(days=10)
-    assert actions[0].scheduled_for == due + timedelta(days=1)  # email@due+1d
+    assert actions[0].scheduled_for == NOW + timedelta(days=1)  # email@due+1d, re-anchored
+    assert actions[-1].action_type == "escalate"
+    assert actions[-1].scheduled_for == NOW + timedelta(days=14)  # escalation last, not day 0
+
+
+def test_due_anchored_timing_future_due(session):
+    case = _case(session, category="L3", cause="INVOICE_FORGOTTEN", amount=18000, entity="e_fut")
+    case.due_date = (NOW + timedelta(days=3)).isoformat()
+    actions = plan(case, POLICY, NOW)
+    assert actions[0].scheduled_for == NOW + timedelta(days=4)  # true due+1d when due is ahead
 
 
 # --- Guards --------------------------------------------------------------------

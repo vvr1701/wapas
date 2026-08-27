@@ -102,11 +102,13 @@ def check(
 
     history = _executed(session, case.id)
 
-    # (2) attempt caps per kind
+    # (2) attempt caps per kind; escalate is internal (no customer contact, no cap)
     def kind_of(t: str) -> str:
         if t == "silent_retry":
             return "retries"
-        return "voice_calls" if t == "voice_call" else "nudges"
+        if t == "voice_call":
+            return "voice_calls"
+        return "internal" if t == "escalate" else "nudges"
 
     kind = kind_of(action.action_type)
     if kind in policy.caps:
@@ -262,9 +264,10 @@ def execute_action(
     return row
 
 
-def opt_out(session: Session, customer_id: str, *, source: str) -> None:
+def opt_out(session: Session, customer_id: str, *, source: str, ts: str | None = None) -> None:
     """FR-5.2: instant, permanent, logged. Cancels every pending action and
-    stops every non-terminal case for the customer."""
+    stops every non-terminal case for the customer. `ts` lets sim-time callers
+    stamp the world clock instead of the wall clock."""
     reg = session.scalar(select(CustomerRow).where(CustomerRow.customer_id == customer_id))
     if reg is None:
         reg = CustomerRow(customer_id=customer_id)
@@ -272,7 +275,7 @@ def opt_out(session: Session, customer_id: str, *, source: str) -> None:
     if reg.opted_out:
         return  # permanent: first trigger wins, nothing to redo
     reg.opted_out = True
-    reg.opt_out_ts = datetime.now(UTC).isoformat()
+    reg.opt_out_ts = ts or datetime.now(UTC).isoformat()
     reg.opt_out_source = source
     audit.append(
         session,

@@ -13,7 +13,7 @@ simulate:
 	uv run python -m simulator.event_generator --seed $(or $(SEED),42)
 
 eval:
-	@echo "TODO Phase 8: uv run python -m evalh.run_batch --seed $(or $(SEED),42)" && exit 1
+	uv run python -m evalh.run_batch --seed $(or $(SEED),42)
 
 verify-audit:
 	uv run python -m ledger.audit --verify

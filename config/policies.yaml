@@ -37,18 +37,23 @@ playbooks:
     - {action: silent_retry, channel: bank, at: "+24h"}
   L2.AUTH_ABANDONED:
     - {action: link_nudge, channel: whatsapp, at: "+45m"}
-    - {action: link_nudge, channel: email, at: "+24h"}
+    - {action: link_nudge, channel: whatsapp, at: liquidity_window}
   L2.PRICE_HESITATION:
     - {action: link_nudge, channel: email, at: "+2h"}
-    - {action: link_nudge, channel: whatsapp, at: "+48h"}
+    - {action: link_nudge, channel: whatsapp, at: liquidity_window}
+  # Voice is the strongest converter and the annoyance model punishes late calls
+  # (customers disengage after repeated nudges) — so the call comes second, not
+  # fourth: one polite email, then the high-value conversation, then a link nudge
+  # timed to the salary window for whoever remains.
   L3.INVOICE_FORGOTTEN:
     - {action: email_nudge, channel: email, at: "due+1d"}
-    - {action: wa_nudge, channel: whatsapp, at: "due+4d"}
-    - {action: voice_call, channel: voice, at: "due+7d", if_voice_eligible: true}
+    - {action: voice_call, channel: voice, at: "due+3d", if_voice_eligible: true}
+    - {action: wa_nudge, channel: whatsapp, at: liquidity_window}
     - {action: escalate, channel: none, at: "due+14d"}
   L3.CLIENT_CASHFLOW_DELAY:
     - {action: email_nudge, channel: email, at: "due+1d"}
-    - {action: voice_call, channel: voice, at: "due+7d", if_voice_eligible: true}
+    - {action: voice_call, channel: voice, at: "due+3d", if_voice_eligible: true}
+    - {action: wa_nudge, channel: whatsapp, at: liquidity_window}
     - {action: escalate, channel: none, at: "due+14d"}
   L3.INVOICE_DISPUTED: # dispute is never dunned (C-5)
     - {action: escalate, channel: none, at: "+0h"}

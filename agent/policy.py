@@ -90,7 +90,10 @@ def _resolve_at(spec: str, *, now: datetime, due: datetime | None, policy: Polic
     if m := re.fullmatch(r"due\+(\d+)d", spec):
         if due is None:
             return now  # no due anchor: act now rather than never
-        return due + timedelta(days=int(m.group(1)))
+        # A ladder whose due date is already past re-anchors at plan time —
+        # otherwise every step (incl. escalation) would fire at once on day 0.
+        anchor = due if due > now else now
+        return anchor + timedelta(days=int(m.group(1)))
     raise ValueError(f"unrecognized timing spec: {spec}")
 
 

@@ -1,0 +1,78 @@
+{
+ "arms": {
+  "A_do_nothing": {
+   "contacts_made": 0,
+   "payments": 28,
+   "recovered_raw_inr": 1302107,
+   "recovery_rate": 0.1829
+  },
+  "B_baseline": {
+   "contacts_made": 409,
+   "opt_outs": 8,
+   "payments": 105,
+   "recovered_adj_inr": 936708.0,
+   "recovered_raw_inr": 2238815,
+   "recovery_rate": 0.3145,
+   "touched_at_risk_inr": 7119238
+  },
+  "C_wapas": {
+   "contacts_made": 383,
+   "executed_actions": 538,
+   "opt_outs": 5,
+   "payments": 93,
+   "recovered_adj_inr": 2295055.59,
+   "recovered_raw_inr": 3448928,
+   "recovery_rate": 0.4845,
+   "touched_at_risk_inr": 6308769
+  }
+ },
+ "attribution": {
+  "natural_rate": 0.1829,
+  "rule": "credit only payments arriving after the arm's first intervention on the case; adjusted = raw \u2212 natural_rate \u00d7 at_risk(touched cases)"
+ },
+ "batch": {
+  "at_risk_inr": 7119238,
+  "cases": 250
+ },
+ "compliance": {
+  "actions_after_optout": 0,
+  "optouts": 5,
+  "stops_honored": 1.0
+ },
+ "cost": {
+  "comms_cost_est_inr": 376.0,
+  "cost_per_recovered_inr": 0.0002,
+  "llm_cost_usd": 0,
+  "usd_inr_est": 88.0
+ },
+ "headline": {
+  "at_risk_inr": 7119238,
+  "exceptions_count": 141,
+  "lift": {
+   "absolute": 0.17,
+   "relative": 0.5405
+  },
+  "promises_kept_rate": 1.0,
+  "recovered_adj_inr": {
+   "B": 936708.0,
+   "C": 2295055.59
+  },
+  "recovered_raw_inr": {
+   "A": 1302107,
+   "B": 2238815,
+   "C": 3448928
+  },
+  "recovery_rate": {
+   "A": 0.1829,
+   "B": 0.3145,
+   "C": 0.4845
+  },
+  "stops_honored": 1.0
+ },
+ "promises": {
+  "inr_via_promises": 1758500,
+  "kept": 13,
+  "kept_rate": 1.0,
+  "made": 13
+ }
+}
