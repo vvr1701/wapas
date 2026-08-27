@@ -8,3 +8,4 @@ __pycache__/
 *.sqlite3
 logs/
 data/outbox/
+data/events_*.json

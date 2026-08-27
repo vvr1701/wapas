@@ -1,0 +1,23 @@
+# Simulator configuration (FR-1.2). Distributions here shape the world;
+# tuning the AGENT happens in policies.yaml — never here (FR-1.4).
+seed_entities:
+  customers: 250
+  plan_amount_inr: 499
+  subscriptions: 120
+  orders: 80
+  invoices: 50
+  order_amount_inr: {min: 300, max: 5000}
+  invoice_amount_inr: {min: 10000, max: 200000}
+
+batch:
+  size: 250
+  category_mix: {L1: 0.45, L2: 0.30, L3: 0.25}
+  # Starter error taxonomy per PRD Appendix A — verify against current
+  # Razorpay docs in Phase 3 (diagnosis) before the lookup table ships.
+  l1_error_mix:
+    insufficient_funds: 0.50
+    card_expired: 0.20
+    mandate_paused_cancelled: 0.10
+    bank_gateway_downtime: 0.20
+  l2_auth_attempted_share: 0.60   # OTP-abandoned vs never-attempted (price hesitation)
+  l3_days_overdue: {min: 1, max: 60}

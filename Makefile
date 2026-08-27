@@ -7,10 +7,10 @@ lint:
 	uv run ruff check .
 
 seed:
-	@echo "TODO Phase 1: uv run python -m simulator.seed_razorpay" && exit 1
+	uv run python -m simulator.seed_razorpay
 
 simulate:
-	@echo "TODO Phase 1: uv run python -m simulator.event_generator --seed $(or $(SEED),42)" && exit 1
+	uv run python -m simulator.event_generator --seed $(or $(SEED),42)
 
 eval:
 	@echo "TODO Phase 8: uv run python -m evalh.run_batch --seed $(or $(SEED),42)" && exit 1

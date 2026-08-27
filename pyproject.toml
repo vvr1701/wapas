@@ -3,7 +3,12 @@ name = "wapas"
 version = "0.1.0"
 description = "AI Revenue Recovery agent — Razorpay AI Buildathon 2026, Track 3"
 requires-python = ">=3.12,<3.13"
-dependencies = []
+dependencies = [
+    "pydantic>=2.13.4",
+    "python-dotenv>=1.2.3",
+    "pyyaml>=6.0.3",
+    "razorpay>=2.0.1",
+]
 
 [dependency-groups]
 dev = [
