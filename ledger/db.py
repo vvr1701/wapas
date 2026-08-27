@@ -170,6 +170,24 @@ class AuditRow(Base):
     record_hash: Mapped[str] = mapped_column(String(64))
 
 
+class LlmCallRow(Base):
+    """One LLM API call — cost and behavior are measured, never claimed (§6.2)."""
+
+    __tablename__ = "llm_calls"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    purpose: Mapped[str]  # conversation | promise_extraction | diagnosis | ...
+    prompt_file: Mapped[str]
+    prompt_hash: Mapped[str] = mapped_column(String(64))
+    model: Mapped[str]
+    tokens_in: Mapped[int]
+    tokens_out: Mapped[int]
+    latency_ms: Mapped[int]
+    cost_usd: Mapped[float]
+    valid_output: Mapped[bool]
+    ts: Mapped[str]
+
+
 def get_engine(path: Path = DEFAULT_DB):
     """Engine with schema ensured. SQLite file lives under data/."""
     path.parent.mkdir(parents=True, exist_ok=True)

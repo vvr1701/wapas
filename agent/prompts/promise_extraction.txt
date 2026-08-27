@@ -1,0 +1,22 @@
+Extract the payment promise (if any) from this Hinglish collection-call transcript.
+
+Call facts: amount due ₹{amount_inr}, call date {call_date} (use it to resolve relative
+Hinglish date expressions: "agle mangalvar" = next Tuesday after the call date,
+"parso" = day after tomorrow, "salary ke baad" with a named day = that day, "mahine ke
+pehle hafte" = the 1st-7th of the next month — pick the earliest matching date).
+
+Return ONLY a JSON object, no other text:
+{{
+  "promise": true|false,
+  "amount_inr": <integer, 0 if no promise>,
+  "date": "YYYY-MM-DD" or null,
+  "conditions": "<short free text or null>",
+  "confidence": <0.0-1.0>
+}}
+
+Rules: promise=true only if the customer committed to a specific amount AND timeframe.
+A vague "dekh lenge" / "try karenge" is NOT a promise (promise=false, confidence high).
+Do not infer amounts that were never spoken; "pura" / "full" means the amount due.
+
+Transcript:
+{transcript}

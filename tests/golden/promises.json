@@ -1,0 +1,68 @@
+{
+  "call_date": "2026-08-27",
+  "note": "Hand-labeled 2026-08-27 (a Thursday). Exact-match scoring on (promise, amount_inr, date).",
+  "cases": [
+    {"id": "g01", "amount_due_inr": 18000, "expected": {"promise": true, "amount_inr": 18000, "date": "2026-09-01"}, "transcript": [
+      {"role": "agent", "text": "Namaste! Invoice ka ₹18,000 pending hai. Kab tak payment ho payega?"},
+      {"role": "customer", "text": "Haan pata hai. Agle mangalvar tak pura kar dunga, pakka."}]},
+    {"id": "g02", "amount_due_inr": 18000, "expected": {"promise": true, "amount_inr": 18000, "date": "2026-08-28"}, "transcript": [
+      {"role": "agent", "text": "₹18,000 due hai aapka."},
+      {"role": "customer", "text": "Kal subah hi transfer kar dunga, full amount."}]},
+    {"id": "g03", "amount_due_inr": 18000, "expected": {"promise": true, "amount_inr": 9000, "date": "2026-08-29"}, "transcript": [
+      {"role": "agent", "text": "Athara hazaar pending hai ji."},
+      {"role": "customer", "text": "Abhi to aadha hi ho payega — nau hazaar parso bhej deta hoon, baaki next month."}]},
+    {"id": "g04", "amount_due_inr": 52000, "expected": {"promise": true, "amount_inr": 52000, "date": "2026-09-01"}, "transcript": [
+      {"role": "agent", "text": "Invoice INV-0017, ₹52,000, kaafi time se due hai."},
+      {"role": "customer", "text": "Salary aane do, pehli tarikh ko poora clear kar denge."}]},
+    {"id": "g05", "amount_due_inr": 18000, "expected": {"promise": false, "amount_inr": 0, "date": null}, "transcript": [
+      {"role": "agent", "text": "₹18,000 ka payment kab tak expect karein?"},
+      {"role": "customer", "text": "Dekh lenge yaar, abhi busy hoon."}]},
+    {"id": "g06", "amount_due_inr": 18000, "expected": {"promise": false, "amount_inr": 0, "date": null}, "transcript": [
+      {"role": "agent", "text": "Payment pending hai ji."},
+      {"role": "customer", "text": "Try karenge is month mein kuch karne ka."}]},
+    {"id": "g07", "amount_due_inr": 25000, "expected": {"promise": true, "amount_inr": 25000, "date": "2026-08-31"}, "transcript": [
+      {"role": "agent", "text": "₹25,000 due hai."},
+      {"role": "customer", "text": "Somvar ko office se hi NEFT kar dunga, pachchees hazaar poora."}]},
+    {"id": "g08", "amount_due_inr": 18000, "expected": {"promise": false, "amount_inr": 0, "date": null}, "transcript": [
+      {"role": "agent", "text": "Payment reminder ke liye call kiya hai."},
+      {"role": "customer", "text": "Maine already pay kar diya hai, check karo apna record."}]},
+    {"id": "g09", "amount_due_inr": 12000, "expected": {"promise": true, "amount_inr": 12000, "date": "2026-09-03"}, "transcript": [
+      {"role": "agent", "text": "₹12,000 pending hai aapka."},
+      {"role": "customer", "text": "Ek hafte mein kar dunga, baarah hazaar note kar lo."}]},
+    {"id": "g10", "amount_due_inr": 18000, "expected": {"promise": true, "amount_inr": 10000, "date": "2026-08-28"}, "transcript": [
+      {"role": "agent", "text": "Athara hazaar due hai ji, koi dikkat?"},
+      {"role": "customer", "text": "Cash flow tight hai. Das hazaar kal de sakta hoon, chalega?"},
+      {"role": "agent", "text": "Theek hai, das hazaar kal — baaki ke liye team follow up karegi."},
+      {"role": "customer", "text": "Haan pakka, kal tak das hazaar."}]},
+    {"id": "g11", "amount_due_inr": 30000, "expected": {"promise": true, "amount_inr": 30000, "date": "2026-09-10"}, "transcript": [
+      {"role": "agent", "text": "₹30,000 invoice due ho chuka hai."},
+      {"role": "customer", "text": "Client se paisa 10 tarikh tak aayega, usi din poora kar dunga."}]},
+    {"id": "g12", "amount_due_inr": 18000, "expected": {"promise": false, "amount_inr": 0, "date": null}, "transcript": [
+      {"role": "agent", "text": "Payment ke baare mein baat karni thi."},
+      {"role": "customer", "text": "Abhi mat karo call, main meeting mein hoon."}]},
+    {"id": "g13", "amount_due_inr": 18000, "expected": {"promise": true, "amount_inr": 18000, "date": "2026-08-29"}, "transcript": [
+      {"role": "agent", "text": "₹18,000 ka reminder tha ji."},
+      {"role": "customer", "text": "Do din mein full payment ho jayega, tension mat lo."}]},
+    {"id": "g14", "amount_due_inr": 45000, "expected": {"promise": true, "amount_inr": 45000, "date": "2026-09-01"}, "transcript": [
+      {"role": "agent", "text": "Paintalis hazaar ka invoice overdue hai."},
+      {"role": "customer", "text": "Mahine ke pehle hafte mein poora clear kar denge, GST filing ke saath."}]},
+    {"id": "g15", "amount_due_inr": 18000, "expected": {"promise": true, "amount_inr": 18000, "date": "2026-08-28"}, "transcript": [
+      {"role": "agent", "text": "₹18,000 pending hai."},
+      {"role": "customer", "text": "Is Friday pakka, poora amount UPI kar dunga."}]},
+    {"id": "g16", "amount_due_inr": 20000, "expected": {"promise": true, "amount_inr": 20000, "date": "2026-09-05"}, "transcript": [
+      {"role": "agent", "text": "Bees hazaar due hai aapka."},
+      {"role": "customer", "text": "5 September ko poora bhej dunga, likh lo."}]},
+    {"id": "g17", "amount_due_inr": 18000, "expected": {"promise": false, "amount_inr": 0, "date": null}, "transcript": [
+      {"role": "agent", "text": "Payment kab tak ho payega?"},
+      {"role": "customer", "text": "Paisa hi nahi hai bhai, business band ho gaya. Nahi de paunga."}]},
+    {"id": "g18", "amount_due_inr": 16000, "expected": {"promise": true, "amount_inr": 8000, "date": "2026-08-31"}, "transcript": [
+      {"role": "agent", "text": "Solah hazaar pending hai ji."},
+      {"role": "customer", "text": "Aadha somvar ko de dunga — aath hazaar. Baaki diwali tak."}]},
+    {"id": "g19", "amount_due_inr": 18000, "expected": {"promise": true, "amount_inr": 18000, "date": "2026-09-02"}, "transcript": [
+      {"role": "agent", "text": "₹18,000 due hai, athara hazaar."},
+      {"role": "customer", "text": "2 tarikh ko salary ke baad poora kar dunga, pakka promise."}]},
+    {"id": "g20", "amount_due_inr": 18000, "expected": {"promise": false, "amount_inr": 0, "date": null}, "transcript": [
+      {"role": "agent", "text": "Payment reminder ke liye call hai."},
+      {"role": "customer", "text": "Galat number hai ye, main koi Kirana+ ka customer nahi hoon."}]}
+  ]
+}
