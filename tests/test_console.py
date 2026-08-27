@@ -2,6 +2,8 @@
 any external key, audio mode degrades gracefully mid-session instead of dying.
 The live STT/TTS manual check is logged in BUILD_LOG (needs SARVAM_API_KEY)."""
 
+import os
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -31,10 +33,16 @@ def test_text_call_flow_and_midsession_mode_toggle(client):
     assert r1.json()["agent_text"].startswith(DISCLOSURE)
     assert r1.json()["agent_audio_b64"] is None
 
-    # turn 2: toggle to audio mid-session with typed text; TTS unavailable -> degrades, text flows
+    # turn 2: toggle to audio mid-session with typed text. With a SARVAM key the
+    # agent speaks (real TTS audio); without one it degrades to text — either way
+    # the text keeps flowing and the session survives the toggle (NFR-7).
     r2 = client.post("/call/turn", data={"session_id": sid, "mode": "audio", "text": "haan boliye"})
     body = r2.json()
-    assert body["agent_text"] and body["degraded"] == "text"
+    assert body["agent_text"]
+    if os.getenv("SARVAM_API_KEY"):
+        assert body["agent_audio_b64"] and body["degraded"] is None
+    else:
+        assert body["agent_audio_b64"] is None and body["degraded"] == "text"
 
     # turn 3: back to text mode, same session continues
     r3 = client.post(
