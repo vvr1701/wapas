@@ -68,6 +68,7 @@ def open_case(
     customer_id: str,
     category: str,
     amount_inr: int,
+    due_date: str | None = None,
 ) -> RecoveryCaseRow:
     """Open a case in DETECTED with its paired audit record."""
     existing = session.scalar(select(RecoveryCaseRow).where(RecoveryCaseRow.entity_id == entity_id))
@@ -78,6 +79,7 @@ def open_case(
         customer_id=customer_id,
         category=category,
         amount_due_inr=amount_inr,
+        due_date=due_date,
         state=CaseState.DETECTED,
         opened_ts=datetime.now(UTC).isoformat(),
     )

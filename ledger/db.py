@@ -53,8 +53,26 @@ class RecoveryCaseRow(Base):
     root_cause: Mapped[str | None]
     diagnosis_confidence: Mapped[float | None]
     diagnosis_source: Mapped[str | None]  # rule | llm
+    due_date: Mapped[str | None]  # L3 scheduling anchor ("due+Nd" playbook timings)
     opened_ts: Mapped[str]
     closed_ts: Mapped[str | None]
+
+
+class PlannedActionRow(Base):
+    """One intervention the policy engine decided on — explainable by construction:
+    rule_id + rationale + policy_version_hash are NOT NULL (FR-4.2)."""
+
+    __tablename__ = "planned_actions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    case_id: Mapped[int]
+    action_type: Mapped[str]
+    channel: Mapped[str]
+    scheduled_for: Mapped[str]  # ISO-8601 UTC
+    rule_id: Mapped[str]
+    rationale: Mapped[str] = mapped_column(Text)
+    policy_version_hash: Mapped[str] = mapped_column(String(64))
+    status: Mapped[str] = mapped_column(String, default="PENDING")
 
 
 class AuditRow(Base):

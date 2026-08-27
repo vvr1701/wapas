@@ -1,0 +1,50 @@
+# Wapas policy-as-code (FR-4.1, Appendix B). The audit log references this
+# file's content hash; tuning the agent happens HERE, never in the simulator.
+version: 1
+contact_window: {start: "10:00", end: "19:00", tz: "Asia/Kolkata"}
+caps: {retries: 3, nudges: 4, voice_calls: 1}
+cooldowns_hours: {nudge: 20, voice_after_last_contact: 48}
+voice_eligibility: {min_amount_inr: 15000, min_days_overdue: 7}
+salary_days: [1, 7, 15]
+
+# Each playbook is an ordered plan. Timing spec `at`:
+#   "+Nh" / "+Nm" / "+Nd"  -> offset from planning time
+#   "liquidity_window"     -> next salary day (salary_days) at contact-window open
+#   "due+Nd"               -> N days after the case's due date
+# Optional guard: if_value_gte (INR) includes the action only for big-enough cases.
+playbooks:
+  L1.INSUFFICIENT_FUNDS:
+    - {action: silent_retry, channel: bank, at: liquidity_window}
+    - {action: silent_retry, channel: bank, at: "+72h"}
+    - {action: link_nudge, channel: whatsapp, at: "+96h"}
+    - {action: escalate, channel: none, at: "+120h", if_value_gte: 10000}
+  L1.CARD_EXPIRED: # retries are pointless against a dead card
+    - {action: method_update_nudge, channel: email, at: "+0h"}
+    - {action: link_nudge, channel: whatsapp, at: "+24h"}
+    - {action: escalate, channel: none, at: "+96h", if_value_gte: 10000}
+  L1.MANDATE_PAUSED_CANCELLED:
+    - {action: method_update_nudge, channel: email, at: "+0h"}
+    - {action: link_nudge, channel: whatsapp, at: "+48h"}
+    - {action: escalate, channel: none, at: "+96h", if_value_gte: 10000}
+  L1.BANK_GATEWAY_DOWNTIME: # transient; don't blame the customer for the bank
+    - {action: silent_retry, channel: bank, at: "+2h"}
+    - {action: silent_retry, channel: bank, at: "+24h"}
+  L2.AUTH_ABANDONED:
+    - {action: link_nudge, channel: whatsapp, at: "+45m"}
+    - {action: link_nudge, channel: email, at: "+24h"}
+  L2.PRICE_HESITATION:
+    - {action: link_nudge, channel: email, at: "+2h"}
+    - {action: link_nudge, channel: whatsapp, at: "+48h"}
+  L3.INVOICE_FORGOTTEN:
+    - {action: email_nudge, channel: email, at: "due+1d"}
+    - {action: wa_nudge, channel: whatsapp, at: "due+4d"}
+    - {action: voice_call, channel: voice, at: "due+7d", if_voice_eligible: true}
+    - {action: escalate, channel: none, at: "due+14d"}
+  L3.CLIENT_CASHFLOW_DELAY:
+    - {action: email_nudge, channel: email, at: "due+1d"}
+    - {action: voice_call, channel: voice, at: "due+7d", if_voice_eligible: true}
+    - {action: escalate, channel: none, at: "due+14d"}
+  L3.INVOICE_DISPUTED: # dispute is never dunned (C-5)
+    - {action: escalate, channel: none, at: "+0h"}
+  UNKNOWN: # unknown diagnosis routes to a human, silently guessing is banned
+    - {action: escalate, channel: none, at: "+0h"}

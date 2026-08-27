@@ -115,6 +115,7 @@ def ingest(session: Session, events: list[RevenueEvent], now: datetime) -> list[
                     customer_id=e.customer_id,
                     category=e.category,
                     amount_inr=e.amount_inr,
+                    due_date=e.due_date.isoformat() if e.due_date else None,
                 )
             )
         except DuplicateCase:

@@ -30,3 +30,10 @@ Daily: Shipped / Broke / Fixed / Decided (+why) / Next.
 - **Fixed:** n/a.
 - **Decided:** audit timestamps stored as ISO strings, canonical hash built from stored strings only — kills the tz/type round-trip class of verification bugs. STOPPED reachable from every non-terminal state (FR-5.2 needs instant halt; §4.2 diagram shows it from GATED/AWAITING_OUTCOME, generalized deliberately).
 - **Next:** Phase 3 — diagnosis (rules-first) + policy engine + policies.yaml. Verify Razorpay error taxonomy against current docs (Appendix A note).
+
+## Aug 27, 2026 — Phase 3: Diagnosis + policy engine
+- **Shipped:** closed RootCause taxonomy + table-driven deterministic diagnosis (config/error_map.yaml; unmapped → UNKNOWN, never guessed), policy engine loading content-hashed policies.yaml with structured playbooks (timing DSL: +Nh/liquidity_window/due+Nd; value + voice-eligibility guards), PlannedAction persistence with rule_id + rationale + policy_version_hash on every row and per-action audit records. 24 new tests.
+- **Broke:** nothing.
+- **Fixed:** n/a.
+- **Decided:** (1) Verified Razorpay card error_reason strings against live docs (razorpay.com/docs/errors/payments/cards/) — updated simulator taxonomy from starter map to documented values (insufficient_funds, card_expired, gateway_technical_error…); mandate reasons keep the starter map, noted. Batch hash for seed 42 changed accordingly (now 80e6028d…). (2) Appendix B's string DSL ("retry@liquidity_window") became structured YAML entries — same expressiveness, no parser to maintain. (3) Unknown (category × cause) pairs fall back to UNKNOWN playbook → escalate.
+- **Next:** Phase 4 — guardrails gate, TESTS FIRST. Mandatory human diff review after it per §13.1.

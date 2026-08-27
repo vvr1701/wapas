@@ -1,0 +1,14 @@
+# Deterministic error_reason -> root_cause map (FR-3.1, Appendix A).
+# error_reason values verified against razorpay.com/docs/errors/payments/cards/
+# (Aug 27, 2026). Unmapped reasons diagnose as UNKNOWN — never guessed.
+version: 1
+by_error_reason:
+  insufficient_funds: INSUFFICIENT_FUNDS
+  card_expired: CARD_EXPIRED
+  debit_instrument_blocked: CARD_EXPIRED # dead instrument: same lever (method update)
+  mandate_cancelled: MANDATE_PAUSED_CANCELLED
+  mandate_paused: MANDATE_PAUSED_CANCELLED
+  gateway_technical_error: BANK_GATEWAY_DOWNTIME
+  bank_technical_error: BANK_GATEWAY_DOWNTIME
+  payment_timed_out: AUTH_ABANDONED
+  authentication_failed: AUTH_ABANDONED

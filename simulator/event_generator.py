@@ -23,13 +23,16 @@ from pydantic import BaseModel
 # Fixed simulated "now" so batches are reproducible (never datetime.now()).
 SIM_NOW = datetime(2026, 8, 27, 11, 0, tzinfo=UTC)
 
-# Starter error taxonomy per PRD Appendix A — shape mirrors Razorpay's payment
-# error fields (code/reason/description). Verify against current docs in Phase 3.
+# Error taxonomy: error_reason values verified against Razorpay's card error
+# docs (razorpay.com/docs/errors/payments/cards/, checked Aug 27 2026):
+# insufficient_funds, card_expired, gateway_technical_error are documented
+# reasons. mandate_cancelled follows the starter map (PRD Appendix A) — the
+# e-mandate reason catalog is not publicly enumerated the same way.
 L1_ERRORS: dict[str, dict[str, str]] = {
     "insufficient_funds": {
         "error_code": "BAD_REQUEST_ERROR",
-        "error_reason": "payment_failed",
-        "error_description": "Payment failed due to insufficient funds in customer account",
+        "error_reason": "insufficient_funds",
+        "error_description": "Customer's account lacked adequate balance",
     },
     "card_expired": {
         "error_code": "BAD_REQUEST_ERROR",
@@ -44,7 +47,7 @@ L1_ERRORS: dict[str, dict[str, str]] = {
     "bank_gateway_downtime": {
         "error_code": "GATEWAY_ERROR",
         "error_reason": "gateway_technical_error",
-        "error_description": "Bank or gateway is facing a technical issue (5xx)",
+        "error_description": "Partner bank downtime preventing payment processing",
     },
 }
 
