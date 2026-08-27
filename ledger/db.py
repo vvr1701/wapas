@@ -1,0 +1,82 @@
+"""SQLAlchemy engine and ORM models (PRD §7, Phase 2 subset).
+
+Single responsibility: define the persistent schema and hand out engines/sessions.
+Tables land phase by phase; this phase: revenue_events, recovery_cases, audit_log.
+Timestamps are stored as ISO-8601 UTC strings — SQLite round-trips them exactly,
+which the audit hash chain depends on.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+from sqlalchemy import String, Text, create_engine
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import Session as Session  # re-export for callers
+
+DEFAULT_DB = Path("data/wapas.db")
+
+
+class Base(DeclarativeBase):
+    pass
+
+
+class RevenueEventRow(Base):
+    """Normalized revenue-at-risk event, whatever its source (FR-2.1)."""
+
+    __tablename__ = "revenue_events"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    event_id: Mapped[str] = mapped_column(String, unique=True)  # dedupe on re-ingestion
+    category: Mapped[str]  # L1 | L2 | L3
+    source: Mapped[str]  # rzp_poll | webhook | simulator
+    customer_id: Mapped[str]
+    entity_type: Mapped[str]  # subscription | order | invoice
+    entity_id: Mapped[str]
+    amount_inr: Mapped[int]
+    occurred_at: Mapped[str]  # ISO-8601 UTC
+    raw_payload: Mapped[str] = mapped_column(Text)
+
+
+class RecoveryCaseRow(Base):
+    """One recovery case per underlying at-risk entity (FR-2.2)."""
+
+    __tablename__ = "recovery_cases"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    entity_id: Mapped[str] = mapped_column(String, unique=True)  # duplicate-case guard
+    customer_id: Mapped[str]
+    category: Mapped[str]
+    amount_due_inr: Mapped[int]
+    currency: Mapped[str] = mapped_column(String, default="INR")
+    state: Mapped[str]  # agent.cases.CaseState
+    root_cause: Mapped[str | None]
+    diagnosis_confidence: Mapped[float | None]
+    diagnosis_source: Mapped[str | None]  # rule | llm
+    opened_ts: Mapped[str]
+    closed_ts: Mapped[str | None]
+
+
+class AuditRow(Base):
+    """Append-only, tamper-evident audit record (FR-10.1). id is chain order."""
+
+    __tablename__ = "audit_log"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    ts: Mapped[str]
+    case_id: Mapped[int | None]
+    actor: Mapped[str]  # system | agent | human | customer
+    event_type: Mapped[str]
+    payload_json: Mapped[str] = mapped_column(Text)
+    rule_id: Mapped[str | None]
+    policy_version_hash: Mapped[str | None]
+    prev_record_hash: Mapped[str] = mapped_column(String(64))
+    record_hash: Mapped[str] = mapped_column(String(64))
+
+
+def get_engine(path: Path = DEFAULT_DB):
+    """Engine with schema ensured. SQLite file lives under data/."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    engine = create_engine(f"sqlite:///{path}")
+    Base.metadata.create_all(engine)
+    return engine

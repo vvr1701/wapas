@@ -16,7 +16,7 @@ eval:
 	@echo "TODO Phase 8: uv run python -m evalh.run_batch --seed $(or $(SEED),42)" && exit 1
 
 verify-audit:
-	@echo "TODO Phase 2: uv run python -m ledger.audit --verify" && exit 1
+	uv run python -m ledger.audit --verify
 
 dashboard:
 	@echo "TODO Phase 9: uv run streamlit run dashboard/app.py" && exit 1

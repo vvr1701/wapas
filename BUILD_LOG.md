@@ -23,3 +23,10 @@ Daily: Shipped / Broke / Fixed / Decided (+why) / Next.
 - **Fixed:** (2) exponential backoff in Seeder._ensure (all creates route through it); (3) L2 entities seeded as Orders — truer to FR-2.2 anyway — and all 30 created links cancelled to reserve the budget for per-nudge links (FR-6.2); seeder sections isolated so a gated product can't block the rest.
 - **Decided:** subscriptions stay as disclosed sim_ ids until the API unlocks; re-running `make seed` fills the gap with zero duplicates by design.
 - **Next:** Phase 2 — case spine. Re-check /v1/plans before Phase 5.
+
+## Aug 27, 2026 — Phase 2: Case spine
+- **Shipped:** SQLAlchemy schema (revenue_events, recovery_cases, audit_log), hash-chained append-only audit log + `make verify-audit`, §4.2 state machine with edge enforcement + terminal immutability, FR-10.2 service layer (open_case/transition pair every business write with an audit record), normalizers for simulator/Razorpay payloads producing one RevenueEvent shape, detection rules with duplicate-case guard (service + DB unique constraint). 13 new tests incl. tamper/delete/rehash detection.
+- **Broke:** nothing.
+- **Fixed:** n/a.
+- **Decided:** audit timestamps stored as ISO strings, canonical hash built from stored strings only — kills the tz/type round-trip class of verification bugs. STOPPED reachable from every non-terminal state (FR-5.2 needs instant halt; §4.2 diagram shows it from GATED/AWAITING_OUTCOME, generalized deliberately).
+- **Next:** Phase 3 — diagnosis (rules-first) + policy engine + policies.yaml. Verify Razorpay error taxonomy against current docs (Appendix A note).
