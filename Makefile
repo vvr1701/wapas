@@ -20,3 +20,9 @@ verify-audit:
 
 dashboard:
 	uv run streamlit run dashboard/app.py
+
+api:
+	uv run uvicorn channels.voice.console:app --port 8000
+
+web:
+	cd webapp && npm run dev

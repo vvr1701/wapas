@@ -594,3 +594,4 @@ Stop handling: *"Bilkul, main abhi call band kar rahi hoon aur aapko dobara call
 
 ## PRD Changelog
 - v1.0 · Aug 22, 2026 · Initial single source of truth. All future changes logged here, one line each.
+- v1.1 · Aug 28, 2026 · Add Next.js demo UI (`webapp/` + JSON API routes on the FastAPI console) as the demo-facing front-end; Streamlit remains the tested P0 dashboard (§4.3 allowed Next.js if Days 11–12 were free — all P0 phases completed Day 7).

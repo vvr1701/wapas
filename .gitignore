@@ -9,3 +9,5 @@ __pycache__/
 logs/
 data/outbox/
 data/events_*.json
+webapp/node_modules/
+webapp/.next/

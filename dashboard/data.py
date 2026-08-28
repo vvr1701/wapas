@@ -120,6 +120,8 @@ def case_timeline(db: Session, case_id: int) -> list[dict]:
             "event": r.event_type,
             "rule_id": r.rule_id,
             "detail": json.loads(r.payload_json),
+            "hash": r.record_hash[:10],
+            "prev": r.prev_record_hash[:10],
         }
         for r in db.scalars(
             select(AuditRow).where(AuditRow.case_id == case_id).order_by(AuditRow.id)

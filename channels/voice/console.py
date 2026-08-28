@@ -1,28 +1,104 @@
-"""Call console (FR-7.1, FR-7.4): browser page driving one call session.
+"""Call console + JSON API (FR-7.1, FR-7.4, PRD v1.1).
 
-Single responsibility: HTTP surface over the call agent — mic audio or typed
-text in, agent speech (Sarvam TTS) or text out, with a mid-session audio/text
-toggle. Speech failure degrades to text with a visible banner instead of
-crashing (NFR-7). Run: uv run uvicorn channels.voice.console:app --reload
+Single responsibility: the HTTP surface — mic audio or typed text in, agent
+speech (Sarvam TTS) or text out with a mid-session audio/text toggle, plus thin
+/api/* JSON wrappers over dashboard/data.py for the Next.js demo UI (webapp/).
+No business logic lives here. Run: uv run uvicorn channels.voice.console:app
 """
 
 from __future__ import annotations
 
 import base64
+import json
 from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import FastAPI, File, Form, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 
 from agent.cases import CaseState, DuplicateCase, open_case, transition
 from channels.voice import call_agent, stt_tts
 from channels.voice.policy import CallSession, respond
+from dashboard import data
 from ledger.db import RecoveryCaseRow, get_engine
 
-app = FastAPI(title="Wapas call console")
+app = FastAPI(title="Wapas console & API")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # Next.js dev server (local demo only)
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 _calls: dict[str, CallSession] = {}
+
+
+# --- JSON API for the Next.js UI: 3-line wrappers over dashboard/data.py -------
+
+
+@app.get("/api/metrics")
+def api_metrics() -> dict:
+    return data.load_metrics()
+
+
+@app.get("/api/manifest")
+def api_manifest() -> dict:
+    return data.load_manifest()
+
+
+@app.get("/api/variance")
+def api_variance() -> dict:
+    return json.loads((data.RESULTS / "variance.json").read_text())
+
+
+@app.get("/api/cases")
+def api_cases(state: str | None = None, category: str | None = None) -> list[dict]:
+    with data.session() as db:
+        return data.list_cases(db, state=state, category=category)
+
+
+@app.get("/api/cases/{case_id}/timeline")
+def api_timeline(case_id: int) -> list[dict]:
+    with data.session() as db:
+        return data.case_timeline(db, case_id)
+
+
+@app.get("/api/overview")
+def api_overview() -> dict:
+    with data.session() as db:
+        return {
+            "kpis": data.kpis(),
+            "by_state": data.cases_by_state(db),
+            "by_category": data.recovery_by_category(db),
+            "razorpay": data.razorpay_status(),
+        }
+
+
+@app.get("/api/guardrails")
+def api_guardrails() -> dict:
+    with data.session() as db:
+        return {
+            **data.guardrails_view(db),
+            "heatmap_ist": data.contact_hour_histogram(db),
+        }
+
+
+@app.get("/api/escalations")
+def api_escalations() -> list[dict]:
+    with data.session() as db:
+        return data.escalation_queue(db)
+
+
+@app.get("/api/promises")
+def api_promises() -> list[dict]:
+    with data.session() as db:
+        return data.promises_list(db)
+
+
+@app.get("/api/exceptions")
+def api_exceptions() -> dict:
+    return {"markdown": data.exceptions_table()}
 
 
 def _demo_case(db: Session) -> RecoveryCaseRow:
