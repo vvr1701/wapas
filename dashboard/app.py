@@ -1,5 +1,12 @@
 """Screen 1 — Command center (FR-12.1). Run: make dashboard"""
 
+import sys
+from pathlib import Path
+
+# streamlit puts the script dir (dashboard/) on sys.path, not the repo root;
+# pages share this process, so one bootstrap here fixes every screen.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 import streamlit as st
 
 from dashboard import data
