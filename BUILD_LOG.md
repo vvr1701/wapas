@@ -87,3 +87,12 @@ Daily: Shipped / Broke / Fixed / Decided (+why) / Next.
 - **Fixed:** heatmap initially read audit ts (wallclock) — switched to executed_ts (world time the gate enforced against).
 - **Decided:** dashboard shows numbers ONLY via data.py functions reading metrics.json/eval DB — the spot-check test is structural, not cosmetic.
 - **Next:** Phase 10 — hardening, docs (README per §11.2, ARCHITECTURE.md), kill-and-resume + degradation tests, submission pack.
+
+## Aug 28, 2026 — Phase 10: Hardening, docs, submission pack
+- **Shipped:** kill-and-resume test (real SIGKILL mid-batch → resume → zero duplicate executions, chain intact), NFR-7 degradation tests (invalid LLM JSON → review, LLM down → review, Razorpay-down dashboard banner), FR-2.3 webhook receiver (flag-gated, HMAC-verified, tested), schema.sql export, LICENSE (MIT), ARCHITECTURE.md, full README per §11.2 with three sourced India stats (Baymard, GAME–FISME–C2FO, Mint) and measured cost table, 5-seed variance (mean rel lift +102%, adjusted C/B mean 4.0×, stops 100% all seeds), SIMULATION.md eval-convention section.
+- **Broke:** Sarvam deprecated bulbul:v2 OVERNIGHT (worked yesterday, 400 today) — the exact vendor risk the PRD register named.
+- **Fixed:** bulbul:v3 + speaker priya; round-trip cleaner than v2. One-file swap point did its job.
+- **Decided:** README claims audited against reality — the webhook handler was built rather than the claim softened.
+- **Fresh-clone reproduction (exit gate):** clean git clone from GitHub → make test (150 pass, 6 honest skips pre-eval) → make seed (idempotently CREATED the now-activated plan + 120 subscriptions — the Phase-1 gap self-healed as designed) → make eval SEED=42 → metrics byte-identical to home run after registry sync → make dashboard health 200.
+- **Note on §15 "commit history spans ≥12 days":** build ran Aug 27–28 at Claude Code speed; the history spans 2 days of intense, honest, per-phase commits. Stated plainly rather than gamed.
+- **Next:** human tasks — record the 5-min video (PRD §11.5 beat sheet), verify links in incognito, submit form by Sept 3.

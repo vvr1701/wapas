@@ -4,7 +4,7 @@
 
 [![CI](https://github.com/vvr1701/wapas/actions/workflows/ci.yml/badge.svg)](https://github.com/vvr1701/wapas/actions)
 ![coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)
-![tests](https://img.shields.io/badge/tests-153%20passed-brightgreen)
+![tests](https://img.shields.io/badge/tests-156%20passed-brightgreen)
 
 An agent for **Razorpay AI Buildathon 2026 · Track 3** that watches a merchant's revenue
 leaks — failed subscriptions, abandoned checkouts, overdue invoices — diagnoses why each
@@ -16,12 +16,12 @@ Hinglish phone call), and **proves** how much it recovered with an auditable tra
 | Metric | Value |
 |---|---|
 | ₹ at risk | ₹71,19,238 |
-| ₹ recovered — raw (Wapas) | ₹34,48,928 (48.4% of at-risk) |
-| ₹ recovered — **adjusted** (natural recovery subtracted) | **₹22,95,056** — vs baseline's ₹9,36,708 (**2.4×**) |
+| ₹ recovered — raw (Wapas) | ₹34,49,427 (48.5% of at-risk) |
+| ₹ recovered — **adjusted** (natural recovery subtracted) | **₹22,96,439** — vs baseline's ₹9,37,207 (**2.5×**) |
 | Lift vs industry-baseline policy (raw rate) | +17.0 pts absolute, **+54% relative** |
 | Promises made → kept (Hinglish voice) | 13 → 13 (**100%**, ₹17,58,500 via promises) |
 | Opt-outs honored | **100%** — zero actions after any opt-out, provable from the audit log |
-| Honest exception list | 141 cases it could NOT recover, each with a stated reason |
+| Honest exception list | 139 cases it could NOT recover, each with a stated reason |
 
 Every number above regenerates from a fresh clone with one command, and every number on
 every dashboard screen traces to a `results/metrics.json` key.
@@ -90,14 +90,14 @@ arm A proves would have been paid anyway
 
 | Seed | ₹ at risk | Raw A | Raw B | Raw C | **Adj C** | Rel. lift | Stops honored |
 |---|---|---|---|---|---|---|---|
-| 7 | 71,67,717 | 6,89,467 | 15,92,463 | 26,98,404 | 21,72,624 | +69% | 100% |
-| 13 | 76,34,306 | 4,55,327 | 6,44,242 | 19,71,836 | 16,34,859 | +206% | 100% |
-| 42 | 71,19,238 | 13,02,107 | 22,38,815 | 34,48,928 | 22,95,056 | +54% | 100% |
-| 99 | 87,76,011 | 3,17,485 | 13,84,782 | 18,37,097 | 16,32,175 | +33% | 100% |
-| 123 | 70,18,243 | 5,18,208 | 8,52,650 | 21,02,404 | 16,98,622 | +147% | 100% |
+| 7 | 71,67,717 | 6,90,465 | 15,92,463 | 26,99,901 | 21,73,360 | +70% | 100% |
+| 13 | 76,34,306 | 4,57,822 | 6,44,242 | 19,70,838 | 16,32,015 | +206% | 100% |
+| 42 | 71,19,238 | 13,01,109 | 22,39,314 | 34,49,427 | 22,96,439 | +54% | 100% |
+| 99 | 87,76,011 | 3,20,479 | 13,85,780 | 18,38,095 | 16,31,241 | +33% | 100% |
+| 123 | 70,18,243 | 5,16,711 | 8,54,147 | 21,00,408 | 16,97,792 | +146% | 100% |
 
 Across 5 seeds: mean relative lift **+102%** (range +33%…+206%); adjusted recovery
-**1.5×–8.7× baseline (mean 4.0×)**; opt-outs honored 100% on every seed
+**1.5×–8.8× baseline (mean 4.0×)**; opt-outs honored 100% on every seed
 (`results/variance.json`). No seed was cherry-picked; 42 is simply the committed run.
 
 All formulas are implemented once, in [`ledger/attribution.py`](ledger/attribution.py),
@@ -115,7 +115,7 @@ performance" — it is "this decision architecture beats the default under hones
 reproducible conditions."
 
 **What it could not recover:** [EXCEPTIONS.md](EXCEPTIONS.md) is machine-generated on
-every eval — 141 cases with root cause and the policy reason recovery stopped. It is a
+every eval — 139 cases with root cause and the policy reason recovery stopped. It is a
 deliverable, not an embarrassment.
 
 **Known limitations:** voice turn latency measured ~3.9 s against a 2.5 s target
@@ -168,7 +168,7 @@ make eval SEED=42            # 3 arms, one world → results/ + EXCEPTIONS.md
 make dashboard               # 5 screens on localhost:8501
 ```
 
-`make test` (153 tests) and `make verify-audit` complete the picture. The eval needs no
+`make test` (156 tests) and `make verify-audit` complete the picture. The eval needs no
 API keys at all — a fresh clone reproduces every README number offline.
 
 ## 10 · Production roadmap
@@ -188,7 +188,7 @@ Measured, not estimated (from the `llm_calls` table; prices are Anthropic list):
 | Voice conversation turn | Claude Sonnet 5 | 685 / 109 | 3.9 s | $0.0037 |
 | Promise extraction / call | Claude Opus 5 | 422 / 318 | 11.1 s | $0.0100 |
 | Full 250-case batch eval | — | 0 (rules cover 100% of structured events) | 4.7 s total | **$0.00 LLM** |
-| Comms estimate / batch | — | 322 nudges + 29 calls | — | ~₹376 |
+| Comms estimate / batch | — | ~330 nudges + ~30 calls | — | ~₹376 |
 
 Cost per recovered ₹ (batch): **₹0.0002**. The 20-transcript extraction golden set
 (100% exact match) costs about $0.20 to run.
