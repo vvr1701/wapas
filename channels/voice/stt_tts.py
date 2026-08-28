@@ -18,8 +18,8 @@ import requests
 STT_URL = "https://api.sarvam.ai/speech-to-text"
 TTS_URL = "https://api.sarvam.ai/text-to-speech"
 STT_MODEL = "saarika:v2.5"
-TTS_MODEL = "bulbul:v2"
-TTS_SPEAKER = "anushka"
+TTS_MODEL = "bulbul:v3"
+TTS_SPEAKER = "priya"
 TIMEOUT_S = 15
 
 

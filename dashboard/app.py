@@ -8,6 +8,9 @@ st.set_page_config(page_title="Wapas · Command center", page_icon="🪃", layou
 st.title("🪃 Wapas — Revenue Recovery Command Center")
 st.caption("Every number on this screen traces to a `results/metrics.json` key. Seed 42 eval run.")
 
+if data.razorpay_status() == "unavailable":
+    st.warning("degraded: live Razorpay API unavailable — simulator-driven data only (NFR-7)")
+
 k = data.kpis()
 c1, c2, c3, c4 = st.columns(4)
 c1.metric("₹ at risk", f"₹{k['at_risk_inr']:,}")

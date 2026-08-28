@@ -30,3 +30,15 @@ listed here.
 - The agent **cannot read hidden state** — it only observes outcomes. Enforced by
   `tests/test_simulator.py::test_agent_never_imports_behavior_model`.
 - The agent is tuned only via `config/policies.yaml` — never via this simulator.
+
+## Eval-harness conventions (added Phase 8)
+
+- **Natural payment** is consulted exactly **once per case**, on the customer's hidden
+  liquidity (salary) day, with an identical draw key in all three arms — the model gives
+  a per-consultation probability, and consulting it daily would compound into unrealistic
+  do-nothing recovery. The convention is harness-side; `behavior_model.py` was not touched.
+- **Voice-call promises in the batch eval** are simulated through the same behavior model
+  (a successful voice reaction records a promise, paid two days later, verified by the
+  ledger). Live promise capture with real speech is demonstrated on the call console.
+- Interventions draw reactions once per executed action, keyed by the action's id —
+  deterministic per seed, identical across reruns.

@@ -1,0 +1,139 @@
+{
+ "runs": [
+  {
+   "adj": {
+    "B": 902996.0,
+    "C": 2172624.35
+   },
+   "at_risk_inr": 7167717,
+   "exceptions": 128,
+   "lift_rel": 0.6945,
+   "promises_kept_rate": 1.0,
+   "rate": {
+    "A": 0.0962,
+    "B": 0.2222,
+    "C": 0.3765
+   },
+   "raw": {
+    "A": 689467,
+    "B": 1592463,
+    "C": 2698404
+   },
+   "seed": 7,
+   "stops_honored": 1.0
+  },
+  {
+   "adj": {
+    "B": 188915.0,
+    "C": 1634859.04
+   },
+   "at_risk_inr": 7634306,
+   "exceptions": 114,
+   "lift_rel": 2.0607,
+   "promises_kept_rate": 1.0,
+   "rate": {
+    "A": 0.0596,
+    "B": 0.0844,
+    "C": 0.2583
+   },
+   "raw": {
+    "A": 455327,
+    "B": 644242,
+    "C": 1971836
+   },
+   "seed": 13,
+   "stops_honored": 1.0
+  },
+  {
+   "adj": {
+    "B": 936708.0,
+    "C": 2295055.59
+   },
+   "at_risk_inr": 7119238,
+   "exceptions": 141,
+   "lift_rel": 0.5405,
+   "promises_kept_rate": 1.0,
+   "rate": {
+    "A": 0.1829,
+    "B": 0.3145,
+    "C": 0.4845
+   },
+   "raw": {
+    "A": 1302107,
+    "B": 2238815,
+    "C": 3448928
+   },
+   "seed": 42,
+   "stops_honored": 1.0
+  },
+  {
+   "adj": {
+    "B": 1067297.0,
+    "C": 1632175.02
+   },
+   "at_risk_inr": 8776011,
+   "exceptions": 119,
+   "lift_rel": 0.3266,
+   "promises_kept_rate": 1.0,
+   "rate": {
+    "A": 0.0362,
+    "B": 0.1578,
+    "C": 0.2093
+   },
+   "raw": {
+    "A": 317485,
+    "B": 1384782,
+    "C": 1837097
+   },
+   "seed": 99,
+   "stops_honored": 1.0
+  },
+  {
+   "adj": {
+    "B": 334442.0,
+    "C": 1698621.56
+   },
+   "at_risk_inr": 7018243,
+   "exceptions": 135,
+   "lift_rel": 1.4657,
+   "promises_kept_rate": 1.0,
+   "rate": {
+    "A": 0.0738,
+    "B": 0.1215,
+    "C": 0.2996
+   },
+   "raw": {
+    "A": 518208,
+    "B": 852650,
+    "C": 2102404
+   },
+   "seed": 123,
+   "stops_honored": 1.0
+  }
+ ],
+ "summary": {
+  "adjusted_C_over_B": {
+   "max": 8.65,
+   "mean": 4.02,
+   "min": 1.53
+  },
+  "lift_relative": {
+   "max": 2.0607,
+   "mean": 1.018,
+   "min": 0.3266
+  },
+  "recovery_rate_C": {
+   "max": 0.4845,
+   "mean": 0.3256,
+   "min": 0.2093
+  },
+  "seeds": [
+   7,
+   13,
+   42,
+   99,
+   123
+  ],
+  "stops_honored_all_seeds": true
+ }
+}

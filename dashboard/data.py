@@ -200,3 +200,20 @@ def promises_list(db: Session) -> list[dict]:
 def exceptions_table() -> str:
     path = Path("EXCEPTIONS.md")
     return path.read_text() if path.exists() else "run `make eval` first"
+
+
+def _razorpay_ping() -> None:
+    """Cheap reachability probe; any exception means unavailable."""
+    import requests
+
+    requests.head("https://api.razorpay.com", timeout=2).raise_for_status()
+
+
+def razorpay_status() -> str:
+    """NFR-7: live-API health for the degraded-mode banner. Never raises —
+    simulator-driven screens keep working either way."""
+    try:
+        _razorpay_ping()
+        return "live"
+    except Exception:  # noqa: BLE001 — any failure is the same answer
+        return "unavailable"
