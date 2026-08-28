@@ -15,20 +15,22 @@ import {
 } from "recharts";
 import { inr } from "@/lib/api";
 
+// Blade steps, categorical order validated: emerald, azure, cider, crimson.
 export const PALETTE = {
-  peri: "#5F7ADB",
-  jade: "#1FA976",
-  turmeric: "#BB8426",
-  rose: "#C9648B",
+  jade: "#008f47", // emerald.600 — recovered / Wapas
+  peri: "#1364f1", // azure.500 — Razorpay primary / arm A
+  turmeric: "#e05e00", // cider.600 — at risk / baseline
+  rose: "#aa190e", // crimson.700 — stopped
 } as const;
 
-const AXIS = { fill: "#8C99AD", fontSize: 11 };
+const AXIS = { fill: "#616d75", fontSize: 11 };
 const tooltipStyle = {
-  background: "#1C2534",
-  border: "1px solid #2A3547",
+  background: "#ffffff",
+  border: "1px solid #dee2e4",
   borderRadius: 8,
   fontSize: 12,
-  color: "#E9EDF5",
+  color: "#292e31",
+  boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
 };
 
 export function GroupedBars({
@@ -48,8 +50,8 @@ export function GroupedBars({
   return (
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} barCategoryGap="24%" barGap={2}>
-        <CartesianGrid stroke="#2A3547" strokeDasharray="0" vertical={false} />
-        <XAxis dataKey={xKey} tick={AXIS} axisLine={{ stroke: "#2A3547" }} tickLine={false} />
+        <CartesianGrid stroke="#e6e9ea" strokeDasharray="0" vertical={false} />
+        <XAxis dataKey={xKey} tick={AXIS} axisLine={{ stroke: "#dee2e4" }} tickLine={false} />
         <YAxis
           tick={AXIS}
           axisLine={false}
@@ -59,11 +61,11 @@ export function GroupedBars({
         />
         <Tooltip
           contentStyle={tooltipStyle}
-          cursor={{ fill: "#2A3547", opacity: 0.35 }}
+          cursor={{ fill: "#e6e9ea", opacity: 0.5 }}
           formatter={(v) => fmt(Number(v))}
         />
         {series.length > 1 && (
-          <Legend wrapperStyle={{ fontSize: 12, color: "#8C99AD" }} iconSize={9} />
+          <Legend wrapperStyle={{ fontSize: 12, color: "#616d75" }} iconSize={9} />
         )}
         {series.map((s) => (
           <Bar
@@ -93,17 +95,17 @@ export function ReasonBars({
   return (
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} layout="vertical" barCategoryGap="28%">
-        <CartesianGrid stroke="#2A3547" horizontal={false} />
+        <CartesianGrid stroke="#e6e9ea" horizontal={false} />
         <XAxis type="number" tick={AXIS} axisLine={false} tickLine={false} allowDecimals={false} />
         <YAxis
           type="category"
           dataKey="reason"
-          tick={{ ...AXIS, fill: "#E9EDF5" }}
+          tick={{ ...AXIS, fill: "#292e31" }}
           width={180}
           axisLine={false}
           tickLine={false}
         />
-        <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "#2A3547", opacity: 0.35 }} />
+        <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "#e6e9ea", opacity: 0.5 }} />
         <Bar dataKey="count" fill={color} radius={[0, 4, 4, 0]} maxBarSize={18} />
       </BarChart>
     </ResponsiveContainer>
@@ -124,7 +126,7 @@ export function ContactHeatmap({ hours }: { hours: Record<string, number> }) {
             <div key={h} className="group relative flex-1">
               <div
                 className={`w-full rounded-t-[3px] ${inWindow ? "bg-jade" : "bg-rose"}`}
-                style={{ height: `${8 + (n / max) * 96}px`, opacity: n ? 1 : 0.14 }}
+                style={{ height: `${8 + (n / max) * 96}px`, opacity: n ? 1 : 0.16 }}
                 title={`${String(h).padStart(2, "0")}:00 IST — ${n} contacts`}
               />
             </div>
@@ -145,7 +147,7 @@ export function StateDots({ byState }: { byState: Record<string, number> }) {
     RECOVERED: PALETTE.jade,
     ESCALATED: PALETTE.turmeric,
     STOPPED: PALETTE.rose,
-    EXHAUSTED: "#5A6678",
+    EXHAUSTED: "#7b878e",
     PROMISE_PENDING: PALETTE.peri,
   };
   const total = Object.values(byState).reduce((a, b) => a + b, 0);
@@ -157,7 +159,7 @@ export function StateDots({ byState }: { byState: Record<string, number> }) {
             key={state}
             style={{
               width: `${(n / total) * 100}%`,
-              background: colors[state] ?? "#5A6678",
+              background: colors[state] ?? "#7b878e",
               marginRight: 2,
             }}
             title={`${state}: ${n}`}
@@ -169,7 +171,7 @@ export function StateDots({ byState }: { byState: Record<string, number> }) {
           <span key={state} className="flex items-center gap-1.5">
             <span
               className="inline-block h-2.5 w-2.5 rounded-sm"
-              style={{ background: colors[state] ?? "#5A6678" }}
+              style={{ background: colors[state] ?? "#7b878e" }}
             />
             {state} · {n}
           </span>

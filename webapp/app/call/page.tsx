@@ -28,14 +28,14 @@ function Orb({ state }: { state: OrbState }) {
       <div
         className={`h-28 w-28 rounded-full transition-colors duration-500 ${
           state === "listening"
-            ? "orb-listen bg-turmeric/70"
+            ? "orb-listen bg-turmeric/60"
             : state === "speaking"
-              ? "orb-breathe bg-jade/80"
+              ? "orb-breathe bg-jade/70"
               : state === "thinking"
-                ? "bg-peri/50"
+                ? "bg-peri/40"
                 : "orb-breathe bg-panel2"
         }`}
-        style={{ boxShadow: "0 0 80px -10px rgba(65,211,156,0.25)" }}
+        style={{ boxShadow: "0 0 70px -8px rgba(19,100,241,0.25)" }}
       />
       <span className="absolute -bottom-7 font-mono text-[11px] uppercase tracking-widest text-sub">
         {state}
@@ -144,7 +144,7 @@ export default function LiveCall() {
             onPointerDown={pttDown}
             onPointerUp={pttUp}
             onPointerLeave={() => orb === "listening" && pttUp()}
-            className="select-none rounded-full bg-jade px-6 py-3 font-medium text-surface transition-transform active:scale-95"
+            className="select-none rounded-full bg-peri px-6 py-3 font-medium text-white shadow-sm transition-transform active:scale-95"
           >
             🎤 hold to talk
           </button>
@@ -153,7 +153,7 @@ export default function LiveCall() {
               type="checkbox"
               checked={audioMode}
               onChange={(e) => setAudioMode(e.target.checked)}
-              className="accent-jade"
+              className="accent-peri"
             />
             voice replies
           </label>
@@ -181,7 +181,7 @@ export default function LiveCall() {
               className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm leading-relaxed ${
                 t.role === "agent"
                   ? "rounded-bl-sm bg-panel2 text-ink"
-                  : "rounded-br-sm bg-peri/25 text-ink"
+                  : "rounded-br-sm bg-peri/10 text-ink"
               }`}
             >
               {t.text}

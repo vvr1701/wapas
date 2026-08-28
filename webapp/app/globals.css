@@ -1,28 +1,34 @@
 @import "tailwindcss";
 
-/* Wapas "digital bahi khata" tokens — ledger ink surface, currency accents.
-   Chart categorical palette validated (dataviz six checks, dark surface). */
+/* Razorpay Blade token reskin (PRD v1.1). Values are taken verbatim from
+   razorpay/blade packages/blade/src/tokens/global/colors.ts:
+   surface = blueGrayLight.50, borders = blueGrayLight.200, text = blueGrayLight
+   1100/700/500; primary = azure; semantic roles keep this app's utility names:
+   jade→emerald, turmeric→cider, peri→azure, rose→crimson.
+   Chart categorical order (emerald, azure, cider, crimson) validated via the
+   dataviz six checks for the light surface. */
 @theme {
-  --color-surface: #101623;
-  --color-panel: #18202f;
-  --color-panel2: #1c2534;
-  --color-edge: #2a3547;
-  --color-ink: #e9edf5;
-  --color-sub: #8c99ad;
-  --color-faint: #5a6678;
+  --color-surface: hsl(0 0% 97%); /* blueGrayLight.50 */
+  --color-panel: hsl(0 0% 100%); /* white cards */
+  --color-panel2: hsl(210 20% 96.5%);
+  --color-edge: hsl(204 8% 88%); /* blueGrayLight.200 */
+  --color-ink: hsl(200 10% 18%); /* blueGrayLight.1100 */
+  --color-sub: hsl(204 9% 42%); /* blueGrayLight.700 */
+  --color-faint: hsl(203 8% 62%); /* blueGrayLight.500 */
 
-  --color-jade: #1fa976;
-  --color-jadehi: #41d39c;
-  --color-turmeric: #bb8426;
-  --color-turmerichi: #e9b44c;
-  --color-peri: #5f7adb;
-  --color-perihi: #8aa0ec;
-  --color-rose: #c9648b;
-  --color-rosehi: #e285a5;
+  --color-jade: #008f47; /* emerald.600 */
+  --color-jadehi: #00753b; /* emerald.700 (text-safe on white) */
+  --color-jadesoft: hsl(150 39% 93%); /* emerald.50 */
+  --color-turmeric: #e05e00; /* cider.600 */
+  --color-turmerichi: #c25200; /* cider.700-ish, text-safe */
+  --color-peri: #1364f1; /* azure.500 — Razorpay primary */
+  --color-perihi: #0e54cd; /* azure.600 */
+  --color-rose: #aa190e; /* crimson.700 */
+  --color-rosehi: #8d150c; /* crimson.800 */
 
-  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
-  --font-sans: var(--font-plex), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-plexmono), ui-monospace, monospace;
+  --font-display: var(--font-tasa), "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Menlo", "San Francisco Mono", "Courier New", "Roboto Mono", monospace;
 }
 
 body {
@@ -32,20 +38,20 @@ body {
 }
 
 ::selection {
-  background: color-mix(in oklab, var(--color-jade) 40%, transparent);
+  background: hsla(218, 89%, 51%, 0.18); /* azure.a100 */
 }
 
 /* voice orb states */
 @keyframes orb-breathe {
-  0%, 100% { transform: scale(1); opacity: 0.55; }
-  50% { transform: scale(1.06); opacity: 0.8; }
+  0%, 100% { transform: scale(1); opacity: 0.65; }
+  50% { transform: scale(1.06); opacity: 0.9; }
 }
 @keyframes orb-listen {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.16); }
 }
 @keyframes orb-ring {
-  0% { transform: scale(0.9); opacity: 0.6; }
+  0% { transform: scale(0.9); opacity: 0.55; }
   100% { transform: scale(1.7); opacity: 0; }
 }
 @keyframes orb-think {

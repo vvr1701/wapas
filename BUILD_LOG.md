@@ -103,3 +103,10 @@ Daily: Shipped / Broke / Fixed / Decided (+why) / Next.
 - **Fixed:** darkened all four hues into the dark-mode band (L 0.48–0.67) and reordered adjacency; all six checks pass.
 - **Decided:** no shadcn/Radix (hand-rolled Tailwind, fewer deps, custom look anyway); Streamlit dashboard stays the tested P0 deliverable; PRD changelog v1.1 recorded BEFORE building.
 - **Next:** human eyeball pass on localhost:3000, then video.
+
+## Aug 28, 2026 — Blade reskin (Razorpay-native look)
+- **Shipped:** webapp reskinned onto Razorpay's open-source Blade design system — tokens pulled verbatim from razorpay/blade colors.ts (blueGrayLight surface/text/borders, azure primary, emerald/cider/crimson semantics), TASA Orbiter heading font taken from the Blade repo itself + Inter body + Menlo code stack (Blade's exact trio). Chart palette re-stepped WITHIN Blade scales until the dataviz six checks passed on the light surface (emerald600/azure500/cider600/crimson700 — first two attempts failed CVD + normal-vision floors). Wapas signatures (hash-chain timelines, voice orb) kept, now living inside the Blade idiom. Wapas branding retained — their design language, never their logo.
+- **Broke:** nothing.
+- **Fixed:** n/a.
+- **Decided:** token reskin over full @razorpay/blade component adoption (styled-components dep vs Next 16/React 19, five working screens, one-shot deadline — plumbing risk outweighed the flex). Demo line earned: "the UI is built on Razorpay's own open-source Blade design tokens and typefaces."
+- **Next:** human eyeball on localhost:3000, then video.

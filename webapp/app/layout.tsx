@@ -1,21 +1,16 @@
 import type { Metadata } from "next";
-import { Bricolage_Grotesque, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
+import { Inter } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { Nav } from "@/components/nav";
 
-const bricolage = Bricolage_Grotesque({
-  subsets: ["latin"],
-  variable: "--font-bricolage",
-});
-const plex = IBM_Plex_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-plex",
-});
-const plexMono = IBM_Plex_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500"],
-  variable: "--font-plexmono",
+// Blade's own faces: Inter for text, TASA Orbiter (shipped in razorpay/blade)
+// for headings. Code face is Blade's Menlo stack, set in globals.css.
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const tasa = localFont({
+  src: "./tasa-orbiter.woff2",
+  variable: "--font-tasa",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -25,7 +20,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${bricolage.variable} ${plex.variable} ${plexMono.variable}`}>
+    <html lang="en" className={`${inter.variable} ${tasa.variable}`}>
       <body className="min-h-screen">
         <div className="flex min-h-screen">
           <Nav />
