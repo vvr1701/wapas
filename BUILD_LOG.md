@@ -115,3 +115,18 @@ Daily: Shipped / Broke / Fixed / Decided (+why) / Next.
 
 - **Razorpay banner**: `_razorpay_ping` did a bare `HEAD https://api.razorpay.com`, which now returns 406 → every screen said "live Razorpay API unreachable" while authed calls were returning 200. Probe is now an authenticated `GET /v1/payments?count=1`; "live" means *our keys* reach the API, "unavailable" when keys are missing or the call fails. Existing hardening tests (monkeypatched ping) unchanged.
 - **Voice "speech unavailable"**: verified Sarvam STT/TTS healthy by posting both WAV and a Chrome-style webm/opus blob through `/call/turn` (transcript → Claude → TTS all OK). Real culprit was the push-to-talk handler: first press triggers the mic-permission prompt, the release lands before the recorder starts, the empty blob is rejected, and the page then flipped voice off for the whole session while hiding the error. Fixed: `held` ref cancels a press released during the prompt; blobs < 2 KB are rejected client-side with a "hold while you speak" hint; STT failure shows the server's `detail` and leaves voice mode on so the next press just works. Blob is sent with its real MIME.
+
+## 2026-09-01 — multilingual voice + Razorpay dark side-nav
+
+- **Voice is no longer pinned to Hinglish.** Saarika STT already auto-detects the
+  utterance language; `speech_to_text` now returns `(transcript, language_code)`,
+  the call session tracks the last detected language, and Bulbul TTS speaks the
+  reply in that language (allowlist of the 11 bulbul:v3 codes, hi-IN fallback).
+  The LLM prompt says "mirror the customer's language" instead of prescribing
+  Hinglish — the transcript's own script carries the signal, so no extra plumbing.
+  Verified live round-trips in ta-IN, te-IN, en-IN (TTS → STT re-detects the same
+  code). Call page shows a "speaking xx-IN" chip. Promise-extraction prompt made
+  language-agnostic (goldens re-run below).
+- **Side-nav now matches the Razorpay dashboard**: dark surface straight from
+  Blade `blueGrayDark` (1100 ground, 1000 hover, 300 text), white active item on
+  azure tint. Content area unchanged (blueGrayLight + white cards).

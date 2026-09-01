@@ -1,7 +1,8 @@
-Extract the payment promise (if any) from this Hinglish collection-call transcript.
+Extract the payment promise (if any) from this collection-call transcript. It may be
+in Hindi/Hinglish, English, or any other Indian language.
 
 Call facts: amount due ₹{amount_inr}, call date {call_date} (use it to resolve relative
-Hinglish date expressions: "agle mangalvar" = next Tuesday after the call date,
+Relative date expressions (any language), e.g. Hinglish: "agle mangalvar" = next Tuesday after the call date,
 "parso" = day after tomorrow, "salary ke baad" with a named day = that day, "mahine ke
 pehle hafte" = the 1st-7th of the next month — pick the earliest matching date).
 

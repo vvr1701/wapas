@@ -9,7 +9,8 @@
 An agent for **Razorpay AI Buildathon 2026 · Track 3** that watches a merchant's revenue
 leaks — failed subscriptions, abandoned checkouts, overdue invoices — diagnoses why each
 rupee is slipping, executes the right **bounded** intervention (from a smart retry to a
-Hinglish phone call), and **proves** how much it recovered with an auditable trail.
+phone call in the caller's own language — 11 Indian languages + English,
+auto-detected via Sarvam), and **proves** how much it recovered with an auditable trail.
 
 **Headline results** (batch of 250 seeded cases, `make eval SEED=42`, reproducible):
 
@@ -19,7 +20,7 @@ Hinglish phone call), and **proves** how much it recovered with an auditable tra
 | ₹ recovered — raw (Wapas) | ₹34,49,427 (48.5% of at-risk) |
 | ₹ recovered — **adjusted** (natural recovery subtracted) | **₹22,96,439** — vs baseline's ₹9,37,207 (**2.5×**) |
 | Lift vs industry-baseline policy (raw rate) | +17.0 pts absolute, **+54% relative** |
-| Promises made → kept (Hinglish voice) | 13 → 13 (**100%**, ₹17,58,500 via promises) |
+| Promises made → kept (voice) | 13 → 13 (**100%**, ₹17,58,500 via promises) |
 | Opt-outs honored | **100%** — zero actions after any opt-out, provable from the audit log |
 | Honest exception list | 139 cases it could NOT recover, each with a stated reason |
 
@@ -56,7 +57,7 @@ carries a rule id and a human-readable rationale) →
 **gate** (a deterministic guardrails gate: attempt caps, cooldowns, a code-enforced
 10:00–19:00 IST contact window, an instant permanent opt-out registry, voice value
 thresholds, incentive budgets, idempotency keys) →
-**execute** (tone-linted Hinglish nudges with real payable links; a Sarvam-voiced,
+**execute** (tone-linted Hinglish nudges with real payable links; a Sarvam-voiced multilingual,
 Claude-driven phone call that captures promises-to-pay) →
 **verify** (promises checked against real observed payments, +1 day grace) →
 **measure** (a three-arm evaluation that subtracts natural recovery before claiming
@@ -66,7 +67,7 @@ credit).
 
 - **Video:** *(link added at submission)*
 - Dashboard: `make dashboard` → 5 screens (command center, case explorer with
-  audit-log timelines, live Hinglish call console, guardrails & compliance, eval results).
+  audit-log timelines, live multilingual call console, guardrails & compliance, eval results).
 - Voice console (mic → Sarvam Saarika STT → Claude Sonnet 5 → Sarvam Bulbul v3 TTS):
   `uv run uvicorn channels.voice.console:app` → http://localhost:8000
 

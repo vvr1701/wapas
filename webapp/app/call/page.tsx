@@ -50,6 +50,7 @@ export default function LiveCall() {
   const [turns, setTurns] = useState<Turn[]>([]);
   const [audioMode, setAudioMode] = useState(true);
   const [note, setNote] = useState<string | null>(null);
+  const [lang, setLang] = useState<string | null>(null);
   const [outcome, setOutcome] = useState<Record<string, unknown> | null>(null);
   const [text, setText] = useState("");
   const recorder = useRef<MediaRecorder | null>(null);
@@ -84,6 +85,7 @@ export default function LiveCall() {
       { role: "customer", text: j.customer_text },
       { role: "agent", text: j.agent_text },
     ]);
+    if (j.language) setLang(j.language);
     if (j.degraded) setNote("TTS unavailable — text only");
     if (j.agent_audio_b64) {
       const audio = new Audio(`data:audio/wav;base64,${j.agent_audio_b64}`);
@@ -181,6 +183,11 @@ export default function LiveCall() {
             end call
           </button>
         </div>
+        {lang && (
+          <p className="font-mono text-[11px] uppercase tracking-widest text-faint">
+            speaking {lang}
+          </p>
+        )}
         {note && <p className="text-xs text-turmerichi">{note}</p>}
       </div>
 

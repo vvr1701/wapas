@@ -95,6 +95,7 @@ class CallSession(BaseModel):
     """Text-mode state of one call; the audio layer wraps this unchanged (FR-7.4)."""
 
     facts: CallFacts
+    language: str = "hi-IN"  # last detected caller language; drives the TTS voice
     transcript: list[dict[str, str]] = []
     disclosed: bool = False
     ended: bool = False

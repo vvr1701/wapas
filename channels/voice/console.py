@@ -148,7 +148,7 @@ async def call_turn(
     degraded = None
     if mode == "audio" and audio is not None:
         try:
-            text = stt_tts.speech_to_text(await audio.read())
+            text, call.language = stt_tts.speech_to_text(await audio.read())
         except stt_tts.SpeechUnavailable as e:
             return {"error": "stt_unavailable", "detail": str(e), "degraded": "text"}
     with Session(get_engine()) as db:
@@ -159,7 +159,9 @@ async def call_turn(
     audio_b64 = None
     if mode == "audio":
         try:
-            audio_b64 = base64.b64encode(stt_tts.text_to_speech(turn.text)).decode()
+            audio_b64 = base64.b64encode(
+                stt_tts.text_to_speech(turn.text, lang=call.language)
+            ).decode()
         except stt_tts.SpeechUnavailable:
             degraded = "text"  # graceful: text still flows (NFR-7)
     return {
@@ -168,6 +170,7 @@ async def call_turn(
         "agent_audio_b64": audio_b64,
         "ended": turn.end_call,
         "llm_used": turn.llm_used,
+        "language": call.language,
         "degraded": degraded,
     }
 

@@ -26,6 +26,11 @@
   --color-rose: #aa190e; /* crimson.700 */
   --color-rosehi: #8d150c; /* crimson.800 */
 
+  /* dark side-nav, Blade blueGrayDark 1100/1000/300 — the Razorpay dashboard signature */
+  --color-sidebar: hsl(210 6% 13%);
+  --color-sidebar2: hsl(210 5% 16%);
+  --color-sidebartext: hsl(210 3% 69%);
+
   --font-display: var(--font-tasa), "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Menlo", "San Francisco Mono", "Courier New", "Roboto Mono", monospace;
