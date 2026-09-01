@@ -110,3 +110,8 @@ Daily: Shipped / Broke / Fixed / Decided (+why) / Next.
 - **Fixed:** n/a.
 - **Decided:** token reskin over full @razorpay/blade component adoption (styled-components dep vs Next 16/React 19, five working screens, one-shot deadline — plumbing risk outweighed the flex). Demo line earned: "the UI is built on Razorpay's own open-source Blade design tokens and typefaces."
 - **Next:** human eyeball on localhost:3000, then video.
+
+## 2026-09-01 — fix: false "degraded" banners in the web UI
+
+- **Razorpay banner**: `_razorpay_ping` did a bare `HEAD https://api.razorpay.com`, which now returns 406 → every screen said "live Razorpay API unreachable" while authed calls were returning 200. Probe is now an authenticated `GET /v1/payments?count=1`; "live" means *our keys* reach the API, "unavailable" when keys are missing or the call fails. Existing hardening tests (monkeypatched ping) unchanged.
+- **Voice "speech unavailable"**: verified Sarvam STT/TTS healthy by posting both WAV and a Chrome-style webm/opus blob through `/call/turn` (transcript → Claude → TTS all OK). Real culprit was the push-to-talk handler: first press triggers the mic-permission prompt, the release lands before the recorder starts, the empty blob is rejected, and the page then flipped voice off for the whole session while hiding the error. Fixed: `held` ref cancels a press released during the prompt; blobs < 2 KB are rejected client-side with a "hold while you speak" hint; STT failure shows the server's `detail` and leaves voice mode on so the next press just works. Blob is sent with its real MIME.

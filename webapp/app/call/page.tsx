@@ -54,6 +54,7 @@ export default function LiveCall() {
   const [text, setText] = useState("");
   const recorder = useRef<MediaRecorder | null>(null);
   const chunks = useRef<Blob[]>([]);
+  const held = useRef(false); // survives the mic-permission prompt on first press
 
   async function start() {
     const r = await fetch(`${API}/call/start`, { method: "POST" });
@@ -73,8 +74,8 @@ export default function LiveCall() {
     const r = await fetch(`${API}/call/turn`, { method: "POST", body: fd });
     const j = await r.json();
     if (j.error) {
-      setNote("speech unavailable — degraded to text mode");
-      setAudioMode(false);
+      // one bad utterance never disables voice for the session — show why, let them retry
+      setNote(`speech failed: ${j.detail ?? j.error} — try again or switch to text`);
       setOrb("idle");
       return;
     }
@@ -96,8 +97,15 @@ export default function LiveCall() {
   }
 
   async function pttDown() {
+    held.current = true;
     if (!session) await start();
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    if (!held.current) {
+      // released while the permission prompt was up — don't start a recorder nobody will stop
+      stream.getTracks().forEach((t) => t.stop());
+      setNote("hold the button while you speak");
+      return;
+    }
     recorder.current = new MediaRecorder(stream);
     chunks.current = [];
     recorder.current.ondataavailable = (e) => chunks.current.push(e.data);
@@ -106,12 +114,20 @@ export default function LiveCall() {
   }
 
   function pttUp() {
+    held.current = false;
     const rec = recorder.current;
-    if (!rec) return;
+    if (!rec || rec.state !== "recording") return;
+    recorder.current = null;
     rec.onstop = async () => {
       rec.stream.getTracks().forEach((t) => t.stop());
+      const blob = new Blob(chunks.current, { type: rec.mimeType || "audio/webm" });
+      if (blob.size < 2000) {
+        setNote("too short — hold the button while you speak");
+        setOrb("idle");
+        return;
+      }
       const fd = new FormData();
-      fd.append("audio", new Blob(chunks.current, { type: "audio/wav" }), "utt.wav");
+      fd.append("audio", blob, "utt.webm");
       await sendTurn(fd);
     };
     rec.stop();

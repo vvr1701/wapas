@@ -205,10 +205,16 @@ def exceptions_table() -> str:
 
 
 def _razorpay_ping() -> None:
-    """Cheap reachability probe; any exception means unavailable."""
+    """Authenticated probe; any exception means unavailable. (A bare HEAD on
+    the host returns 406 now, so "live" must mean *our keys* reach the API.)"""
+    import os
+
     import requests
 
-    requests.head("https://api.razorpay.com", timeout=2).raise_for_status()
+    auth = (os.environ["RAZORPAY_KEY_ID"], os.environ["RAZORPAY_KEY_SECRET"])
+    requests.get(
+        "https://api.razorpay.com/v1/payments", params={"count": 1}, auth=auth, timeout=4
+    ).raise_for_status()
 
 
 def razorpay_status() -> str:
