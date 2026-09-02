@@ -53,9 +53,12 @@ class NudgeContext(BaseModel):
     payment_link_url: str | None = None
     due_date: str | None = None
     invoice_no: str | None = None
+    language: str = "hi-IN"  # template pack; unknown packs fall back to hi-IN
 
 
-# Keyed by (action_type, category). Subject used only for email.
+# Keyed by (action_type, category). Subject used only for email. Customer copy
+# is a *policy artifact*: one reviewed, tone-linted, golden-tested pack per
+# language — the LLM never writes it. Adding a language = adding a pack here.
 _TEMPLATES: dict[tuple[str, str], dict[str, str]] = {
     ("link_nudge", "L1"): {
         "subject": "Kirana+ subscription — payment link",
@@ -116,6 +119,69 @@ _TEMPLATES: dict[tuple[str, str], dict[str, str]] = {
 }
 
 
+_TEMPLATES_EN: dict[tuple[str, str], dict[str, str]] = {
+    ("link_nudge", "L1"): {
+        "subject": "Kirana+ subscription — payment link",
+        "body": (
+            "Hello {customer_name},\n\n"
+            "The renewal for your Kirana+ subscription (₹{amount}) could not be processed "
+            "this time. No trouble at all — whenever it is convenient, you can complete "
+            "the payment through this secure link:\n{link}\n\n"
+            "If you have any questions, just reply and we will help.\n"
+        ),
+    },
+    ("link_nudge", "L2"): {
+        "subject": "Your Kirana+ order is waiting for you",
+        "body": (
+            "Hello {customer_name},\n\n"
+            "Your Kirana+ order (₹{amount}) is one step away. You can complete the "
+            "payment here:\n{link}\n\n"
+            "If something went wrong at checkout, reply and we will sort it out right away.\n"
+        ),
+    },
+    ("method_update_nudge", "L1"): {
+        "subject": "Kirana+ subscription — please update your payment method",
+        "body": (
+            "Hello {customer_name},\n\n"
+            "The payment method on your Kirana+ subscription (₹{amount}/month) is no "
+            "longer working (the card looks expired). You can update it, or pay directly "
+            "this time, using this link:\n{link}\n\n"
+            "It takes two minutes. Reply if you need any help.\n"
+        ),
+    },
+    ("email_nudge", "L3"): {
+        "subject": "Gentle reminder: invoice {invoice_no} (₹{amount})",
+        "body": (
+            "Hello {customer_name},\n\n"
+            "A gentle reminder — invoice {invoice_no} (₹{amount}), due {due_date}, is "
+            "still pending. It may simply have slipped through a busy schedule, so here "
+            "is the payment link:\n{link}\n\n"
+            "If it is already paid, or you have any query, please reply — we will check "
+            "our records.\n"
+        ),
+    },
+    ("wa_nudge", "L3"): {
+        "subject": "",
+        "body": (
+            "Hello {customer_name}! Invoice {invoice_no} (₹{amount}, due {due_date}) is "
+            "still pending. Whenever convenient, you can pay here: {link}\n"
+            "Already paid? Just reply and we will check.\n"
+        ),
+    },
+    ("link_nudge", "L3"): {
+        "subject": "Invoice {invoice_no} — payment link",
+        "body": (
+            "Hello {customer_name},\n\n"
+            "Payment link for invoice {invoice_no} (₹{amount}):\n{link}\n\n"
+            "Reply if you have any query.\n"
+        ),
+    },
+}
+
+# Extra language packs; hi-IN (_TEMPLATES) is the default and the fallback.
+_PACKS: dict[str, dict[tuple[str, str], dict[str, str]]] = {"en-IN": _TEMPLATES_EN}
+
+
 def tone_lint(text: str) -> list[str]:
     """Return every banned phrase found (empty list == clean)."""
     low = text.lower()
@@ -125,7 +191,8 @@ def tone_lint(text: str) -> list[str]:
 def render(ctx: NudgeContext) -> dict[str, str]:
     """Deterministic render. Raises on unknown template or tone violation —
     a nudge that can't pass its own lint never leaves the building."""
-    tpl = _TEMPLATES[(ctx.action_type, ctx.category)]
+    pack = _PACKS.get(ctx.language, _TEMPLATES)
+    tpl = pack.get((ctx.action_type, ctx.category)) or _TEMPLATES[(ctx.action_type, ctx.category)]
     fields = {
         "customer_name": ctx.customer_name,
         "amount": f"{ctx.amount_inr:,}",

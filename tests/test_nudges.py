@@ -125,3 +125,29 @@ def test_outbox_labeled_simulated(tmp_path):
     content = path.read_text()
     assert "SIMULATED DELIVERY" in content
     assert "Subject:" in content  # email carries subject header
+
+
+def test_english_pack_renders_and_lints():
+    """FR-6: per-language template packs. en-IN mirrors every hi-IN template,
+    passes the same lint, and unknown languages fall back to hi-IN."""
+    from channels.nudge import _TEMPLATES, _TEMPLATES_EN
+
+    assert set(_TEMPLATES_EN) == set(_TEMPLATES)
+    for (action, cat), _ in _TEMPLATES_EN.items():
+        ctx = NudgeContext(
+            case_id=1,
+            action_type=action,
+            category=cat,
+            channel="email",
+            customer_name="Asha Rao",
+            amount_inr=12500,
+            payment_link_url="https://rzp.io/x",
+            due_date="2026-08-20",
+            invoice_no="INV-7",
+            language="en-IN",
+        )
+        out = render(ctx)
+        assert "Asha Rao" in out["body"] and "12,500" in out["body"]
+        assert "Namaste" not in out["body"]
+    fallback = render(ctx.model_copy(update={"language": "ta-IN"}))
+    assert "Namaste" in fallback["body"]  # no pack yet -> hi-IN

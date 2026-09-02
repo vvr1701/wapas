@@ -1,0 +1,21 @@
+# One-command demo: docker compose up --build
+# Works with no keys at all (voice degrades to text, Razorpay pill shows
+# unavailable); add a .env for the live voice + Razorpay experience.
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    ports:
+      - "8000:8000"
+    env_file:
+      - path: .env
+        required: false
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api

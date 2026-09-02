@@ -9,7 +9,6 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from agent import webhooks
-from ledger.db import get_engine
 
 SECRET = "whsec_test_dummy"  # test-only value, not a real credential
 
@@ -18,7 +17,7 @@ SECRET = "whsec_test_dummy"  # test-only value, not a real credential
 def client(tmp_path, monkeypatch):
     monkeypatch.setenv("ENABLE_WEBHOOKS", "true")
     monkeypatch.setenv("RAZORPAY_WEBHOOK_SECRET", SECRET)
-    monkeypatch.setattr(webhooks, "get_engine", lambda: get_engine(tmp_path / "t.db"))
+    monkeypatch.setattr(webhooks, "DB_PATH", tmp_path / "t.db")
     app = FastAPI()
     app.include_router(webhooks.router)
     return TestClient(app)

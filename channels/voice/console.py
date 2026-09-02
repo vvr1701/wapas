@@ -10,21 +10,35 @@ from __future__ import annotations
 
 import base64
 import json
+import shutil
+from contextlib import asynccontextmanager
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Annotated
 
 from fastapi import FastAPI, File, Form, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from sqlalchemy.orm import Session
 
-from agent.cases import CaseState, DuplicateCase, open_case, transition
+from agent import webhooks
+from agent.cases import TERMINAL, CaseState, DuplicateCase, open_case, transition
 from channels.voice import call_agent, stt_tts
 from channels.voice.policy import CallSession, respond
 from dashboard import data
-from ledger.db import RecoveryCaseRow, get_engine
+from ledger.db import DEFAULT_DB, RecoveryCaseRow, get_engine
+from simulator.seed_razorpay import synthetic_customer
 
-app = FastAPI(title="Wapas console & API")
+
+@asynccontextmanager
+async def _lifespan(app: FastAPI):
+    # live, callable demo cases must exist before anyone opens the explorer
+    with Session(get_engine(_DB)) as db:
+        _ensure_demo_cases(db)
+    yield
+
+
+app = FastAPI(title="Wapas console & API", lifespan=_lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],  # Next.js dev server (local demo only)
@@ -32,6 +46,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 _calls: dict[str, CallSession] = {}
+
+
+def _demo_db() -> Path:
+    """The UI serves a *copy* of the eval artifact so live calls can mutate real
+    cases (voice → promise → timeline, on screen) without touching the pristine
+    reproducible eval DB. Delete data/demo.db to reset the demo world."""
+    demo = Path("data/demo.db")
+    if not demo.exists() and data.DEFAULT_EVAL_DB.exists():
+        shutil.copyfile(data.DEFAULT_EVAL_DB, demo)
+    return demo if demo.exists() else DEFAULT_DB
+
+
+_DB = _demo_db()
+webhooks.DB_PATH = _DB
+app.include_router(webhooks.router)  # FR-2.3: same HMAC-verified path production uses
 
 
 # --- JSON API for the Next.js UI: 3-line wrappers over dashboard/data.py -------
@@ -54,19 +83,19 @@ def api_variance() -> dict:
 
 @app.get("/api/cases")
 def api_cases(state: str | None = None, category: str | None = None) -> list[dict]:
-    with data.session() as db:
+    with data.session(_DB) as db:
         return data.list_cases(db, state=state, category=category)
 
 
 @app.get("/api/cases/{case_id}/timeline")
 def api_timeline(case_id: int) -> list[dict]:
-    with data.session() as db:
+    with data.session(_DB) as db:
         return data.case_timeline(db, case_id)
 
 
 @app.get("/api/overview")
 def api_overview() -> dict:
-    with data.session() as db:
+    with data.session(_DB) as db:
         return {
             "kpis": data.kpis(),
             "by_state": data.cases_by_state(db),
@@ -77,7 +106,7 @@ def api_overview() -> dict:
 
 @app.get("/api/guardrails")
 def api_guardrails() -> dict:
-    with data.session() as db:
+    with data.session(_DB) as db:
         return {
             **data.guardrails_view(db),
             "heatmap_ist": data.contact_hour_histogram(db),
@@ -86,13 +115,13 @@ def api_guardrails() -> dict:
 
 @app.get("/api/escalations")
 def api_escalations() -> list[dict]:
-    with data.session() as db:
+    with data.session(_DB) as db:
         return data.escalation_queue(db)
 
 
 @app.get("/api/promises")
 def api_promises() -> list[dict]:
-    with data.session() as db:
+    with data.session(_DB) as db:
         return data.promises_list(db)
 
 
@@ -101,40 +130,80 @@ def api_exceptions() -> dict:
     return {"markdown": data.exceptions_table()}
 
 
+# After a full eval every case is terminal, so the demo copy gets a few live,
+# callable cases — real registry customers, honest demo_* entity ids, advanced
+# through the state machine (never poked into a state directly).
+_DEMO_CASES = [
+    ("demo_call_case", "cust_0042", "L3", 18000, "2026-08-17", "INVOICE_FORGOTTEN"),
+    ("demo_call_card", "cust_0007", "L1", 4999, "2026-08-25", "CARD_EXPIRED"),
+    ("demo_call_cash", "cust_0113", "L2", 52000, "2026-08-20", "CLIENT_CASHFLOW_DELAY"),
+]
+
+
+def _ensure_demo_cases(db: Session) -> RecoveryCaseRow:
+    first = None
+    for entity_id, customer_id, category, amount, due, cause in _DEMO_CASES:
+        try:
+            case = open_case(
+                db,
+                entity_id=entity_id,
+                customer_id=customer_id,
+                category=category,
+                amount_inr=amount,
+                due_date=datetime.fromisoformat(due).replace(tzinfo=UTC).isoformat(),
+            )
+            case.root_cause = cause
+            for st in (
+                CaseState.DIAGNOSED,
+                CaseState.PLANNED,
+                CaseState.GATED,
+                CaseState.EXECUTING,
+                CaseState.AWAITING_OUTCOME,
+            ):
+                transition(db, case, st)
+            db.commit()
+        except DuplicateCase:
+            case = db.query(RecoveryCaseRow).filter_by(entity_id=entity_id).one()
+        first = first or case
+    return first
+
+
 def _demo_case(db: Session) -> RecoveryCaseRow:
-    """The console needs a case to talk about; reuse or create the demo one."""
+    """The console needs a case to talk about; reuse or create the demo set."""
+    return _ensure_demo_cases(db)
+
+
+def _customer_name(customer_id: str) -> str:
+    """Recover the deterministic seeded name; demo/unknown ids get the stock one."""
     try:
-        case = open_case(
-            db,
-            entity_id="demo_call_case",
-            customer_id="cust_demo",
-            category="L3",
-            amount_inr=18000,
-            due_date=datetime(2026, 8, 17, tzinfo=UTC).isoformat(),
-        )
-        case.root_cause = "INVOICE_FORGOTTEN"
-        for st in (
-            CaseState.DIAGNOSED,
-            CaseState.PLANNED,
-            CaseState.GATED,
-            CaseState.EXECUTING,
-            CaseState.AWAITING_OUTCOME,
-        ):
-            transition(db, case, st)
-        db.commit()
-    except DuplicateCase:
-        case = db.query(RecoveryCaseRow).filter_by(entity_id="demo_call_case").one()
-    return case
+        return synthetic_customer(int(customer_id.rsplit("_", 1)[1]))["name"]
+    except (ValueError, IndexError):
+        return "Vikram Singh"
 
 
-@app.post("/call/start")
-def start_call() -> dict:
-    with Session(get_engine()) as db:
-        case = _demo_case(db)
-        call = call_agent.new_call(case, "Vikram Singh", datetime.now(UTC).date().isoformat())
+@app.post("/call/start", response_model=None)
+def start_call(case_id: int | None = None) -> dict | JSONResponse:
+    with Session(get_engine(_DB)) as db:
+        case = db.get(RecoveryCaseRow, case_id) if case_id is not None else _demo_case(db)
+        if case is None:
+            return JSONResponse({"error": "no_such_case"}, status_code=404)
+        if CaseState(case.state) in TERMINAL:
+            # guardrail, not a bug: the agent never contacts a closed case
+            return JSONResponse({"error": "case_terminal", "state": case.state}, status_code=409)
+        name = _customer_name(case.customer_id)
+        call = call_agent.new_call(case, name, datetime.now(UTC).date().isoformat())
+        call.facts.context = (case.root_cause or "pending payment").replace("_", " ").lower()
         session_id = f"call_{case.id}_{len(_calls)}"
         _calls[session_id] = call
-        return {"session_id": session_id, "case_id": case.id, "amount_inr": case.amount_due_inr}
+        return {
+            "session_id": session_id,
+            "case_id": case.id,
+            "amount_inr": case.amount_due_inr,
+            "customer_name": name,
+            "due_date": case.due_date,
+            "state": case.state,
+            "context": call.facts.context,
+        }
 
 
 @app.post("/call/turn")
@@ -151,7 +220,7 @@ async def call_turn(
             text, call.language = stt_tts.speech_to_text(await audio.read())
         except stt_tts.SpeechUnavailable as e:
             return {"error": "stt_unavailable", "detail": str(e), "degraded": "text"}
-    with Session(get_engine()) as db:
+    with Session(get_engine(_DB)) as db:
         case = db.get(RecoveryCaseRow, call.facts.case_id)
         turn = respond(call, text, call_agent.claude_conversation(db))
         call_agent.apply_turn_effects(db, case, turn)
@@ -178,7 +247,7 @@ async def call_turn(
 @app.post("/call/finish")
 def call_finish(session_id: Annotated[str, Form()]) -> dict:
     call = _calls.pop(session_id)
-    with Session(get_engine()) as db:
+    with Session(get_engine(_DB)) as db:
         case = db.get(RecoveryCaseRow, call.facts.case_id)
         result = call_agent.finish_call(db, case, call)
         db.commit()

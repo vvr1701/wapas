@@ -1,0 +1,8 @@
+.git
+.venv
+.env
+webapp/node_modules
+webapp/.next
+data/demo.db
+data/wapas.db
+data/outbox

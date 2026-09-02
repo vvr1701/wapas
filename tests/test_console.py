@@ -9,13 +9,12 @@ from fastapi.testclient import TestClient
 
 import channels.voice.console as console
 from channels.voice.policy import DISCLOSURE
-from ledger.db import get_engine
 
 
 @pytest.fixture
 def client(tmp_path, monkeypatch):
     # point the console at a throwaway DB
-    monkeypatch.setattr(console, "get_engine", lambda: get_engine(tmp_path / "t.db"))
+    monkeypatch.setattr(console, "_DB", tmp_path / "t.db")
     return TestClient(console.app)
 
 

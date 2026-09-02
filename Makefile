@@ -1,4 +1,4 @@
-.PHONY: test seed simulate eval dashboard verify-audit lint
+.PHONY: test seed simulate eval dashboard verify-audit lint api web demo-reset
 
 test:
 	uv run pytest
@@ -26,3 +26,6 @@ api:
 
 web:
 	cd webapp && npm run dev
+
+demo-reset:
+	rm -f data/demo.db

@@ -116,3 +116,13 @@ def test_agent_never_imports_behavior_model():
         if "behavior_model" in f.read_text()
     ]
     assert offenders == [], f"hidden-state access from: {offenders}"
+
+
+def test_behavior_model_bytes_frozen():
+    """Hard rule (CLAUDE.md): the world model froze in phase 1. Pinning the exact
+    bytes makes 'we never tuned the simulator to flatter the agent' a CI fact
+    rather than a claim. If this ever fails legitimately, PRD changelog first."""
+    import hashlib
+
+    digest = hashlib.sha256(Path("simulator/behavior_model.py").read_bytes()).hexdigest()
+    assert digest == "1ff7f2959ccf578996d4a2f267a7c65eb95795e18a6f1704ae3145bfa2194caa"

@@ -1,12 +1,22 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { ChainTimeline } from "@/components/chain";
 import { Card, Loading, SectionTitle, StateBadge } from "@/components/ui";
 import { inr, type CaseRow, type TimelineEntry } from "@/lib/api";
 import { useApi } from "@/lib/hooks";
 
-const STATES = ["", "RECOVERED", "PROMISE_PENDING", "ESCALATED", "STOPPED", "EXHAUSTED"];
+const STATES = [
+  "",
+  "AWAITING_OUTCOME",
+  "PROMISE_PENDING",
+  "RECOVERED",
+  "ESCALATED",
+  "STOPPED",
+  "EXHAUSTED",
+];
+const TERMINAL = new Set(["RECOVERED", "ESCALATED", "STOPPED", "EXHAUSTED"]);
 const CATS = ["", "L1", "L2", "L3"];
 
 function Select({
@@ -42,9 +52,11 @@ export default function CaseExplorer() {
   const query = new URLSearchParams();
   if (state) query.set("state", state);
   if (cat) query.set("category", cat);
-  const { data: cases, error } = useApi<CaseRow[]>(`/api/cases?${query}`);
+  // 5s poll: a live call on another tab flips state/timeline before your eyes
+  const { data: cases, error } = useApi<CaseRow[]>(`/api/cases?${query}`, 5000);
   const { data: timeline } = useApi<TimelineEntry[]>(
-    selected ? `/api/cases/${selected.case_id}/timeline` : "/api/cases/0/timeline"
+    selected ? `/api/cases/${selected.case_id}/timeline` : "/api/cases/0/timeline",
+    5000
   );
 
   return (
@@ -68,6 +80,7 @@ export default function CaseExplorer() {
                   <th className="px-4 py-3 text-right">Amount</th>
                   <th className="px-4 py-3">Root cause</th>
                   <th className="px-4 py-3">State</th>
+                  <th className="px-4 py-3" />
                 </tr>
               </thead>
               <tbody>
@@ -89,6 +102,17 @@ export default function CaseExplorer() {
                     <td className="px-4 py-2.5 text-xs text-sub">{c.root_cause}</td>
                     <td className="px-4 py-2.5">
                       <StateBadge state={c.state} />
+                    </td>
+                    <td className="px-4 py-2.5 text-right">
+                      {!TERMINAL.has(c.state) && (
+                        <Link
+                          href={`/call?case=${c.case_id}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="rounded-full bg-peri px-3 py-1 text-xs font-medium text-white transition-transform hover:bg-perihi active:scale-95"
+                        >
+                          ◉ Call
+                        </Link>
+                      )}
                     </td>
                   </tr>
                 ))}

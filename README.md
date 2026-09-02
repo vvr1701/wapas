@@ -57,11 +57,31 @@ carries a rule id and a human-readable rationale) →
 **gate** (a deterministic guardrails gate: attempt caps, cooldowns, a code-enforced
 10:00–19:00 IST contact window, an instant permanent opt-out registry, voice value
 thresholds, incentive budgets, idempotency keys) →
-**execute** (tone-linted Hinglish nudges with real payable links; a Sarvam-voiced multilingual,
+**execute** (tone-linted nudges from per-language template packs — customer copy is a
+reviewed policy artifact the LLM never writes; Hinglish and English ship today, a
+language is one reviewed pack away — with real payable links; a Sarvam-voiced multilingual,
 Claude-driven phone call that captures promises-to-pay) →
 **verify** (promises checked against real observed payments, +1 day grace) →
 **measure** (a three-arm evaluation that subtracts natural recovery before claiming
 credit).
+
+### Where this sits in Razorpay's stack
+
+Razorpay already retries and reminds — per product. Payment links resend reminders,
+subscriptions auto-retry mandates, invoices re-notify. What no product does is *talk to
+the others*: a customer with a failed subscription, an aging invoice, and an abandoned
+checkout is three unrelated reminder streams, each unaware of the contact the others just
+made. Wapas is the layer above those rails, not a replacement for them:
+
+| Razorpay rail (kept, used) | What Wapas adds on top |
+|---|---|
+| Per-product retries & reminders | One case per customer-entity, one **shared contact budget** across every channel |
+| Failure `error_reason` codes | Root-cause diagnosis that picks a *playbook* (a card-expired customer gets an update-card link, not a retry storm) |
+| Hosted payment links | Links opened inside a persuasion sequence, with promise capture on voice for high-value cases |
+| Webhooks | The same events driving a hash-chained audit trail and honest attribution (natural payments subtracted) |
+
+That shared budget is the wedge: recovery pressure is a spend, and today nothing on the
+platform meters it per customer. Wapas meters it, caps it, and can prove it did.
 
 ## 3 · Demo
 
@@ -115,6 +135,24 @@ The behavior model was frozen in Phase 1 and the agent is provably unable to rea
 performance" — it is "this decision architecture beats the default under honest,
 reproducible conditions."
 
+**Why you should distrust our numbers — and why they survive.** We wrote both the
+world and the agent, so the sharpest critique is circularity: *"your simulator rewards
+exactly what your agent does."* Four defenses, each checkable, none rhetorical:
+
+1. **The world is frozen and CI-pinned.** `simulator/behavior_model.py` has exactly one
+   commit in its history (`git log --oneline --follow simulator/behavior_model.py`) —
+   Phase 1, written before any recovery policy existed — and a test pins the file's
+   SHA-256, so tuning the world to flatter the agent fails CI.
+2. **The agent cannot see the hidden state.** No module outside the eval harness imports
+   the behavior model (`test_agent_never_imports_behavior_model` enforces it). The agent
+   sees only what a real merchant would: events, replies, payments.
+3. **The baseline plays in the same world.** Arm B (dumb dunning) uses the same
+   simulator, channels, and seeds — and the world-state hash is asserted identical
+   across arms before every run.
+4. **The world pushes back.** The model punishes contact (annoyance → opt-outs). During
+   policy tuning, *adding* nudges lost money and the winning change was to contact less
+   (build log, phase 9). A simulator built for its agent to win does not teach it that.
+
 **What it could not recover:** [EXCEPTIONS.md](EXCEPTIONS.md) is machine-generated on
 every eval — 139 cases with root cause and the policy reason recovery stopped. It is a
 deliverable, not an embarrassment.
@@ -162,15 +200,28 @@ can annoy, never act.
 
 ## 9 · Run it yourself
 
+**One command, no keys** (voice degrades to text, Razorpay pill shows unavailable —
+everything else, including live calls in text mode and the signed-webhook demo, works):
+
 ```bash
-cp .env.example .env         # add Razorpay TEST keys (+ Anthropic/Sarvam for voice)
-make seed                    # idempotent: real test-mode objects, registry-tracked
-make eval SEED=42            # 3 arms, one world → results/ + EXCEPTIONS.md
-make dashboard               # 5 screens on localhost:8501
+docker compose up --build    # UI on localhost:3000, API on localhost:8000
 ```
 
-`make test` (156 tests) and `make verify-audit` complete the picture. The eval needs no
-API keys at all — a fresh clone reproduces every README number offline.
+Or natively:
+
+```bash
+cp .env.example .env         # add Razorpay TEST keys (+ Anthropic/Sarvam for voice)
+make api & make web          # Next.js UI on :3000 over FastAPI on :8000
+make seed                    # idempotent: real test-mode objects, registry-tracked
+make eval SEED=42            # 3 arms, one world → results/ + EXCEPTIONS.md
+```
+
+The UI serves a copy of the committed eval artifact (`data/demo.db`) so live calls
+mutate real cases without touching the reproducible results; `make demo-reset` restores
+a pristine demo world. `uv run python -m scripts.demo_webhook <case_id>` delivers a
+signed `payment.captured` through the production webhook path and flips the case to
+RECOVERED on screen. `make test` and `make verify-audit` complete the picture — the
+eval needs no API keys at all: a fresh clone reproduces every README number offline.
 
 ## 10 · Production roadmap
 

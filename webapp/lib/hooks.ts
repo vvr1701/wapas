@@ -3,18 +3,22 @@
 import { useEffect, useRef, useState } from "react";
 import { get } from "./api";
 
-export function useApi<T>(path: string) {
+export function useApi<T>(path: string, refreshMs?: number) {
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     let live = true;
-    get<T>(path)
-      .then((d) => live && setData(d))
-      .catch((e) => live && setError(String(e)));
+    const load = () =>
+      get<T>(path)
+        .then((d) => live && setData(d))
+        .catch((e) => live && setError(String(e)));
+    load();
+    const id = refreshMs ? setInterval(load, refreshMs) : undefined;
     return () => {
       live = false;
+      if (id) clearInterval(id);
     };
-  }, [path]);
+  }, [path, refreshMs]);
   return { data, error };
 }
 

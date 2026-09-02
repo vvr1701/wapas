@@ -130,3 +130,30 @@ Daily: Shipped / Broke / Fixed / Decided (+why) / Next.
 - **Side-nav now matches the Razorpay dashboard**: dark surface straight from
   Blade `blueGrayDark` (1100 ground, 1000 hover, 300 text), white active item on
   azure tint. Content area unchanged (blueGrayLight + white cards).
+
+## 2026-09-02 — judge-readiness: the six panel critiques, closed
+
+1. **Circularity defense**: README §6 now argues against its own numbers first —
+   frozen world (one commit ever, now also SHA-256-pinned in CI via
+   `test_behavior_model_bytes_frozen`), import-guard, shared-world baseline,
+   and the world-pushes-back tuning story.
+2. **Voice on real cases**: `/call/start?case_id=` binds a call to any live case
+   (deterministic seeded customer name, root cause as context); terminal cases
+   409 ("the agent stands down"). The UI serves `data/demo.db` — a startup copy
+   of the eval artifact — so calls mutate real cases while `eval_seed42.db`
+   stays pristine. Three live demo cases are created at startup through the
+   state machine. Cases page: Call buttons + 5s polling; call page: `?case=`
+   auto-dial + "Calling <name>" header.
+3. **Stack positioning**: README §2 subsection — Wapas as the orchestration
+   layer over Razorpay's per-product reminder rails; the shared contact budget
+   is the wedge.
+4. **Webhooks live**: HMAC router mounted into the console app (DB_PATH now
+   settable); `scripts/demo_webhook.py` delivers a signed payment.captured —
+   verified: case flips RECOVERED on screen, forged signature → 401.
+5. **Multilingual nudges, honestly**: per-language template packs (en-IN ships,
+   hi-IN default+fallback); copy stays a reviewed, tone-linted policy artifact
+   the LLM never writes.
+6. **One-command run**: Dockerfile.api/.web + compose.yaml, verified end-to-end
+   in containers with no .env (graceful degradation). `data/eval_seed42.db`
+   committed as the reproducible artifact (verified metadata-only: prompt
+   hashes, no prompt text, no secrets).

@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { Card } from "@/components/ui";
 import { API, inr } from "@/lib/api";
 
@@ -44,8 +45,18 @@ function Orb({ state }: { state: OrbState }) {
   );
 }
 
-export default function LiveCall() {
-  const [session, setSession] = useState<{ id: string; amount: number } | null>(null);
+type SessionInfo = {
+  id: string;
+  caseId: number;
+  amount: number;
+  name: string;
+  due?: string;
+  context?: string;
+};
+
+function LiveCall() {
+  const caseParam = useSearchParams().get("case");
+  const [session, setSession] = useState<SessionInfo | null>(null);
   const [orb, setOrb] = useState<OrbState>("idle");
   const [turns, setTurns] = useState<Turn[]>([]);
   const [audioMode, setAudioMode] = useState(true);
@@ -57,18 +68,44 @@ export default function LiveCall() {
   const chunks = useRef<Blob[]>([]);
   const held = useRef(false); // survives the mic-permission prompt on first press
 
-  async function start() {
-    const r = await fetch(`${API}/call/start`, { method: "POST" });
+  async function start(): Promise<string | null> {
+    const q = caseParam ? `?case_id=${caseParam}` : "";
+    const r = await fetch(`${API}/call/start${q}`, { method: "POST" });
     const j = await r.json();
-    setSession({ id: j.session_id, amount: j.amount_inr });
+    if (!r.ok) {
+      setNote(
+        j.error === "case_terminal"
+          ? `case is ${j.state} — the agent stands down on closed cases`
+          : "case not found"
+      );
+      return null;
+    }
+    setSession({
+      id: j.session_id,
+      caseId: j.case_id,
+      amount: j.amount_inr,
+      name: j.customer_name,
+      due: j.due_date,
+      context: j.context,
+    });
     setOutcome(null);
     setTurns([]);
     setNote(null);
     return j.session_id as string;
   }
 
+  // arriving via a case's Call button: dial immediately so the header names them
+  useEffect(() => {
+    if (caseParam) start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [caseParam]);
+
   async function sendTurn(fd: FormData) {
     const sid = session?.id ?? (await start());
+    if (!sid) {
+      setOrb("idle");
+      return;
+    }
     fd.append("session_id", sid);
     fd.append("mode", audioMode ? "audio" : "text");
     setOrb("thinking");
@@ -100,7 +137,7 @@ export default function LiveCall() {
 
   async function pttDown() {
     held.current = true;
-    if (!session) await start();
+    if (!session && !(await start())) return;
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     if (!held.current) {
       // released while the permission prompt was up — don't start a recorder nobody will stop
@@ -148,11 +185,25 @@ export default function LiveCall() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div className="text-center">
-        <h1 className="font-display text-xl font-semibold">Live Hinglish call</h1>
+        <h1 className="font-display text-xl font-semibold">Live call</h1>
         <p className="mt-1 text-xs text-sub">
-          mic → Sarvam Saarika STT → Claude Sonnet 5 (inside code rails) → Sarvam Bulbul TTS
-          {session && <> · case due {inr(session.amount)}</>}
+          mic → Sarvam Saarika STT (any of 11 Indian languages + English) → Claude Sonnet 5
+          (inside code rails) → Sarvam Bulbul TTS
         </p>
+        {session && (
+          <p className="mx-auto mt-3 inline-flex items-center gap-2 rounded-full border border-edge bg-panel px-4 py-1.5 text-sm">
+            <span className="h-2 w-2 rounded-full bg-jade" />
+            Calling <span className="font-medium">{session.name}</span>
+            <span className="text-faint">·</span> case #{session.caseId}
+            <span className="text-faint">·</span> {inr(session.amount)} due
+            {session.context && (
+              <>
+                <span className="text-faint">·</span>
+                <span className="text-sub">{session.context}</span>
+              </>
+            )}
+          </p>
+        )}
       </div>
 
       <div className="flex flex-col items-center gap-8 py-4">
@@ -245,5 +296,13 @@ export default function LiveCall() {
         </button>
       </form>
     </div>
+  );
+}
+
+export default function LiveCallPage() {
+  return (
+    <Suspense>
+      <LiveCall />
+    </Suspense>
   );
 }

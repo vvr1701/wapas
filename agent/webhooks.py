@@ -19,9 +19,10 @@ from fastapi import APIRouter, Header, HTTPException, Request
 from sqlalchemy.orm import Session
 
 from channels.links import observe_payment
-from ledger.db import get_engine
+from ledger.db import DEFAULT_DB, get_engine
 
 router = APIRouter()
+DB_PATH = DEFAULT_DB  # the mounting app points this at its serving DB
 
 
 def verify_signature(body: bytes, signature: str, secret: str) -> bool:
@@ -42,7 +43,7 @@ async def razorpay_webhook(
     event = json.loads(body)
     if event.get("event") == "payment.captured":
         payment = event["payload"]["payment"]["entity"]
-        with Session(get_engine()) as db:
+        with Session(get_engine(DB_PATH)) as db:
             observe_payment(db, payment, datetime.now(UTC))
             db.commit()
         return {"handled": "payment.captured"}
