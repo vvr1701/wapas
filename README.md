@@ -4,13 +4,19 @@
 
 [![CI](https://github.com/vvr1701/wapas/actions/workflows/ci.yml/badge.svg)](https://github.com/vvr1701/wapas/actions)
 ![coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)
-![tests](https://img.shields.io/badge/tests-156%20passed-brightgreen)
+![tests](https://img.shields.io/badge/tests-161%20passed-brightgreen)
 
 An agent for **Razorpay AI Buildathon 2026 · Track 3** that watches a merchant's revenue
 leaks — failed subscriptions, abandoned checkouts, overdue invoices — diagnoses why each
 rupee is slipping, executes the right **bounded** intervention (from a smart retry to a
 phone call in the caller's own language — 11 Indian languages + English,
 auto-detected via Sarvam), and **proves** how much it recovered with an auditable trail.
+
+![Command center](docs/screenshots/overview.png)
+
+| Live call — bound to a real case | Case explorer — hash-chained timeline |
+|---|---|
+| ![Live call](docs/screenshots/call.png) | ![Case explorer](docs/screenshots/cases.png) |
 
 **Headline results** (batch of 250 seeded cases, `make eval SEED=42`, reproducible):
 
@@ -96,6 +102,20 @@ platform meters it per customer. Wapas meters it, caps it, and can prove it did.
 See [ARCHITECTURE.md](ARCHITECTURE.md) for the system diagram, the case-lifecycle state
 machine, and the exact dividing line between deterministic code and the LLM.
 Data model: [schema.sql](schema.sql).
+
+```mermaid
+flowchart LR
+    RZ[Razorpay events\nwebhooks + polling] --> D[detect\none case per entity]
+    D --> DG[diagnose\nerror_reason → root cause\ndeterministic table]
+    DG --> CH[choose\nversioned playbooks\nrule id + rationale]
+    CH --> G{guardrails gate\ncaps · cooldowns · IST window\nopt-outs · idempotency}
+    G -->|allowed| EX[execute\nnudges · payment links · voice call]
+    G -->|blocked| EXC[EXCEPTIONS.md\nwith the reason]
+    EX --> V[verify\npromises vs real payments]
+    V --> M[measure\n3-arm eval\nnatural recovery subtracted]
+    EX -.LLM talks only inside rails.- LLM[Claude + Sarvam\nnever gates an action]
+    D & DG & CH & G & EX & V --> A[(hash-chained\naudit log)]
+```
 
 ## 5 · Measured results
 

@@ -157,3 +157,15 @@ Daily: Shipped / Broke / Fixed / Decided (+why) / Next.
    in containers with no .env (graceful degradation). `data/eval_seed42.db`
    committed as the reproducible artifact (verified metadata-only: prompt
    hashes, no prompt text, no secrets).
+
+## 2026-09-02 (later) — presentation pass
+
+- README: three UI screenshots at the top (headless-Chromium captures, Blade
+  theme, dev-indicator hidden), mermaid architecture flow in §4 (parse-checked
+  against mermaid 11), stale tests badge fixed (161).
+- PRD changelog brought current (v1.2 multilingual voice + Blade reskin,
+  v1.3 judge-readiness) per the CLAUDE.md scope-change rule.
+- Real-money beat restored: fresh invoice-backed payable link bound to demo
+  case 237 (₹4,999) — notes.case_id survives `make demo-reset` because demo
+  case ids are deterministic; `scripts/observe_payments.py` polls captured
+  payments and flips the case on screen.

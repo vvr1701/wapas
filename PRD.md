@@ -595,3 +595,5 @@ Stop handling: *"Bilkul, main abhi call band kar rahi hoon aur aapko dobara call
 ## PRD Changelog
 - v1.0 · Aug 22, 2026 · Initial single source of truth. All future changes logged here, one line each.
 - v1.1 · Aug 28, 2026 · Add Next.js demo UI (`webapp/` + JSON API routes on the FastAPI console) as the demo-facing front-end; Streamlit remains the tested P0 dashboard (§4.3 allowed Next.js if Days 11–12 were free — all P0 phases completed Day 7).
+- v1.2 · Sep 1, 2026 · Voice goes multilingual: Sarvam STT auto-detects the caller's language (11 Indic + English), TTS mirrors it, prompts language-agnostic; webapp reskinned on Razorpay Blade tokens (dark side-nav).
+- v1.3 · Sep 2, 2026 · Judge-readiness: calls bind to real cases via /call/start?case_id (UI serves data/demo.db copy of the eval artifact); webhook router mounted live + signed local delivery script; behavior-model SHA pinned in CI; en-IN nudge template pack; docker compose one-command run; README circularity defense + stack positioning.
